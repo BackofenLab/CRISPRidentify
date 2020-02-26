@@ -156,7 +156,8 @@ class FuzzySearch:
     def _match(self):
         """Run fuzzy search on the sequence"""
 
-        self.matching_object = list(regex.finditer(self.pattern, self.sequence, ENHANCEMATCH=True))
+        #self.matching_object = list(regex.finditer(self.pattern, self.sequence, ENHANCEMATCH=True))
+        self.matching_object = list(regex.finditer(self.pattern, self.sequence))
         if self.matching_object:
             self.match_hit = True
         else:

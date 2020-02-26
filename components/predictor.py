@@ -111,7 +111,6 @@ class Predictor(object):
     def _score_data(self):
         print('Extracting features for {} candidates'.format(sum(len(self.dict_refined_detection[key])
                                                                  for key in self.dict_refined_detection)))
-        print("No parallel")
 
         bfe = BulkFeatureExtractor(self.dict_refined_detection)
         results = bfe.output()
