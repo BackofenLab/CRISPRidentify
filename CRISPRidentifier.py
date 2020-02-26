@@ -76,14 +76,15 @@ parser.add_argument('--enhancement_start_end', type=bool, default=True,
 
 args = parser.parse_args()
 complete_path_folder_info = args.input_folder
-complete_path_folder = complete_path_folder_info[0]
+if complete_path_folder_info:
+    complete_path_folder = complete_path_folder_info[0]
 
-if len(complete_path_folder_info) == 3:
-    chunk_number = int(complete_path_folder_info[1])
-    number_of_chunks = int(complete_path_folder_info[2])
-else:
-    chunk_number = None
-    number_of_chunks = None
+    if len(complete_path_folder_info) == 3:
+        chunk_number = int(complete_path_folder_info[1])
+        number_of_chunks = int(complete_path_folder_info[2])
+    else:
+        chunk_number = None
+        number_of_chunks = None
 
 complete_path_file = args.file
 folder_result = args.result_folder
@@ -144,7 +145,9 @@ list_ml_classifiers = [ClassifierWrapper(classifier_type=None,
                        for model in list_models]
 
 
-def run_over_folder_of_files(folder, result_folder, chunk_number, number_of_chunks, report_pickle_folder=report_pickle):
+def run_over_folder_of_files(folder, result_folder, chunk_number=None, number_of_chunks=None,
+                             report_pickle_folder=report_pickle):
+
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
 
@@ -218,6 +221,8 @@ def multiline_fasta_handle(file):
     cmd += f"print $0 > filename "
     cmd += "}'"
 
+    os.system(cmd)
+
     return base_name
 
 
@@ -225,9 +230,10 @@ if __name__ == "__main__":
     start_time = time()
     if complete_path_file:
         if multiline_fasta_check(complete_path_file):
+            print("Multifasta")
             folder_multifasta = multiline_fasta_handle(complete_path_file)
-            run_over_folder_of_files(folder_multifasta, folder_result,
-                                     chunk_number=chunk_number, number_of_chunks=number_of_chunks)
+            print(folder_multifasta)
+            run_over_folder_of_files(folder_multifasta, folder_result)
             shutil.rmtree(folder_multifasta)
         else:
             run_over_one_file(complete_path_file, folder_result)
