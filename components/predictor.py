@@ -233,15 +233,13 @@ class Predictor(object):
         self.dict_best = {}
         self.dict_alternative = {}
         self.dict_possible = {}
+        self.dict_possible_discarded = {}
         self.dict_bad = {}
         
         for key, data in self.dict_scored_result.items():
-            data_possible = [candidate for candidate in data if 0.75 > candidate[0] > 0.4]
+            data_pre_possible = [candidate for candidate in data if 0.75 > candidate[0] >= 0.5]
             data_alternative = [candidate for candidate in data if candidate[0] >= 0.75]
-            data_bad = [candidate for candidate in data if candidate[0] <= 0.4]
-            
-            if data_possible:
-                self.dict_possible[key] = data_possible
+            data_bad = [candidate for candidate in data if candidate[0] < 0.5]
                 
             if data_bad:
                 self.dict_bad[key] = data_bad
@@ -255,7 +253,15 @@ class Predictor(object):
                 if data_alternative:
                     self.dict_alternative[key] = data_alternative
 
+            if data_pre_possible:
+                data_pre_possible = sorted(data_pre_possible, key=lambda x: x[0], reverse=True)
+                best_possible_candidate = data_pre_possible[0]
+                possible_discarded = data_pre_possible[1:]
+                self.dict_possible[key] = [best_possible_candidate]
+                self.dict_possible_discarded[key] = possible_discarded
+
     def _index_crispr_candidates(self):
+        """
         for index, key in enumerate(sorted(self.dict_best.keys()), 1):
             self.dict_crispr_indexes[key] = index
 
@@ -267,6 +273,29 @@ class Predictor(object):
                                     len(self.dict_best) + len(self.dict_possible) + 1):
             if key not in self.dict_crispr_indexes:
                 self.dict_crispr_indexes[key] = index
+
+        """
+
+        for index, key in enumerate(sorted(self.dict_best.keys()), 1):
+            self.dict_crispr_indexes[key] = index
+
+        index = len(self.dict_best)
+        cur_index = index + 1
+
+        for key in sorted(self.dict_possible.keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
+
+        for key in sorted(self.dict_possible_discarded.keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
+
+        for key in sorted(self.dict_bad.keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
 
     def _write_output(self):
         self.file_base = basename(self.file_path)
@@ -282,6 +311,7 @@ class Predictor(object):
         f_best = open(result_path + '/Best_Candidates.txt', 'w')
         f_alternative = open(result_path + '/Alternative_Candidates.txt', 'w')
         f_possible = open(result_path + '/Possible_Candidates.txt', 'w')
+        f_possible_discarded = open(result_path + '/Possible_Discarded_Candidates.txt', 'w')
         f_bad = open(result_path + '/Bad_Candidates.txt', 'w')
         
         for key in sorted(self.dict_best.keys()):
@@ -355,6 +385,31 @@ class Predictor(object):
                 f_possible.write("Certainty Score: {}\n\n\n\n".format(score))
 
             f_possible.write('\n{}\n\n'.format('=' * 100))
+
+        for key in sorted(self.dict_possible_discarded.keys()):
+            for candidate in self.dict_possible_discarded[key]:
+                score = candidate[0]
+                crispr = candidate[1]
+                feature_vector = candidate[2][0]
+                crispr_stats = crispr.compute_stats()
+                f_possible_discarded.write("Possible Discarded CRISPR: {}, {}-{}, number of Repeats: {}, avg. length of Repeat: {}, avg length of Spacer: {}\n\n"
+                                 .format(self.dict_crispr_indexes[key], crispr_stats["start"], crispr_stats["end"],
+                                         crispr_stats["number_repeats"], crispr_stats["avg_repeat"],
+                                         crispr_stats["avg_spacer"]))
+                f_possible_discarded.write(crispr.dot_repr())
+
+                f_possible_discarded.write("\n")
+                list_reported_features = []
+                for index, feature_list in enumerate(self.list_features):
+                    for feature, value in zip(feature_list, candidate[2][index][0]):
+                        if feature not in list_reported_features:
+                            f_possible_discarded.write("{}: {}\n".format(feature, value))
+                            list_reported_features.append(feature)
+
+                f_possible_discarded.write("\n")
+                f_possible_discarded.write("Certainty Score: {}\n\n\n\n".format(score))
+
+            f_possible_discarded.write('\n{}\n\n'.format('=' * 100))
         
         for key in sorted(self.dict_bad.keys()):
             for candidate in self.dict_bad[key]:
@@ -382,6 +437,7 @@ class Predictor(object):
         
         f_best.close()
         f_possible.close()
+        f_possible_discarded.close()
         f_alternative.close()
         f_bad.close()
 
@@ -514,7 +570,8 @@ class Predictor(object):
             dict_data = {}
         
         key = self.file_base
-        dict_data[key] = [self.dict_best, self.dict_alternative, self.dict_possible, self.dict_bad]
+        dict_data[key] = [self.dict_best, self.dict_alternative, self.dict_possible,
+                          self.dict_possible_discarded, self.dict_bad]
         
         pickle.dump(dict_data, open(file_name, "wb"))
         
@@ -524,8 +581,11 @@ class Predictor(object):
         except OSError:
                 pass
         key = self.file_base
-        dict_data = {'best': self.dict_best, 'alternative': self.dict_alternative,
-                     'possible': self.dict_possible, 'bad': self.dict_bad}
+        dict_data = {'best': self.dict_best,
+                     'alternative': self.dict_alternative,
+                     'possible': self.dict_possible,
+                     'possible_discarded': self.dict_possible_discarded,
+                     'bad': self.dict_bad}
         pickle.dump(dict_data, open(folder_name + '/' + key + '.pkl', "wb"))
         print("Done writing the candidates")
             
