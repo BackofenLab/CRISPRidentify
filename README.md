@@ -1,7 +1,7 @@
 
 # CRISPRIdentifier 
 
-CRISPR-ML-Identifier is a tool to search for CRISPR arrays which utilises machine learning approach
+CRISPRIdentifier is a tool to search for CRISPR arrays which utilises machine learning approach
  for distinguishing false candidates from true CRISPRS
 
 ## Getting Started
