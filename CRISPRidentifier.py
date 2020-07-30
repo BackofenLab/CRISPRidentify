@@ -3,6 +3,7 @@ import sys
 from os import listdir
 from os.path import isfile, join
 import os
+from joblib import dump, load
 from time import time
 import multiprocessing
 import subprocess
@@ -24,6 +25,9 @@ parser.add_argument('--file', type=str, default=None,
 
 parser.add_argument('--model', type=str, default="8",
                     help='model_to_use (default: 8)')
+
+parser.add_argument('--additional_model', type=str, default=None,
+                    help='model_to_use (default: None)')
 
 parser.add_argument('--result_folder', type=str, default="Results",
                     help='folder with the result (default: Results)')
@@ -90,7 +94,9 @@ complete_path_file = args.file
 folder_result = args.result_folder
 report_pickle = args.pickle_report
 list_models = ["8", "9", "10"] if args.model == "ALL" else [args.model]
-
+flag_possible_differentiate_model = args.additional_model
+if flag_possible_differentiate_model not in ["possible", "all"]:
+    flag_possible_differentiate_model = None
 
 #flag_parallel = args.parallel
 #flag_cpu = args.cpu
@@ -144,6 +150,8 @@ list_ml_classifiers = [ClassifierWrapper(classifier_type=None,
                                                      format(model))
                        for model in list_models]
 
+possible_differentiate_model = load('training_new_model_possiple_split/random_forest_positive.joblib')
+
 
 def run_over_folder_of_files(folder, result_folder, chunk_number=None, number_of_chunks=None,
                              report_pickle_folder=report_pickle):
@@ -164,8 +172,10 @@ def run_over_folder_of_files(folder, result_folder, chunk_number=None, number_of
     for index, file in enumerate(chunk, 1):
         print("\n\n\n\t\t\t\tExecuting file {} out of {} ({})\n\n\n".format(index, len(chunk), file))
         pr = Predictor(result_folder_path="{}/".format(result_folder),
-                       file_path="{}/{}".format(folder, file),
+                       file_path=join(folder, file),
                        eden_classifier=None, list_ml_classifiers=list_ml_classifiers,
+                       possible_differentiate_model=possible_differentiate_model,
+                       flag_possible_differential_model=flag_possible_differentiate_model,
                        list_features=feature_list, flag_is=is_flag, flag_cas=cas_flag,
                        flag_degenerated=degenerated_flag,
                        flag_parallel=flag_parallel,
@@ -186,6 +196,8 @@ def run_over_one_file(file, result_folder, report_pickle_folder=report_pickle):
     pr = Predictor(result_folder_path="{}/".format(result_folder),
                    file_path="{}".format(file),
                    eden_classifier=None, list_ml_classifiers=list_ml_classifiers,
+                   possible_differentiate_model=possible_differentiate_model,
+                   flag_possible_differential_model=flag_possible_differentiate_model,
                    list_features=feature_list, flag_is=is_flag, flag_cas=cas_flag,
                    flag_degenerated=degenerated_flag,
                    flag_parallel=flag_parallel,
