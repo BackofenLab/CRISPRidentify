@@ -1,0 +1,2 @@
+SHARED=-shared -fPIC -m64
+SHAREDSUFFIX=so
