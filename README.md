@@ -1,7 +1,7 @@
 
-# CRISPRIdentifier 
+# CRISPR-ML-Identifier
 
-CRISPRIdentifier is a tool to search for CRISPR arrays which utilises machine learning approach
+CRISPR-ML-Identifier is a tool to search for CRISPR arrays which utilises machine learning approach
  for distinguishing false candidates from true CRISPRS
 
 ## Getting Started
@@ -45,17 +45,18 @@ Please unzip models_cas_genes.zip into the same folder.
 
 ### Activation of environment
 
-Before running the tool one need to activate the corresponding environment
+Before running the tool one need to activate the corresponding environment.
 
 ```
 conda activate crispr_identifier_env
 ```
 
-## Running the tool
+## Running the tool 
 
-We suggest running the command line interface
+We suggest running the command line interface.
+We prepared the test folder which can be used for the test run.
 
-for example:
+For example:
 
 ```
 python CRISPRidentifier.py --input_folder TestInput
@@ -68,11 +69,30 @@ The only mandatory parameter which has to be specifier is the input.
 Our approach has two options to handle the input. User has to specify either the path to the folder with the input fasta files
 or the full path to a single fasta input file.
 
+##### Input as a folder of fasta files
+
 --input_folder "Input folder path"
 
-Specifies the folder with fasta files which will be used as input for the tool.
+Specifies the mode where a folder with fasta files which will be used as the input for the tool. The CRISPR array search will be
+then conducted separately for each file in the corresponding input folder
+
+```
+python CRISPRidentifier.py --input_folder TestInput
+```
+
+##### Input as a single file
 
 --file "Input file path"
+
+Specifies the mode where a singe file is used as the tool input. The file might contain a single entry or multiple entries. 
+The CRISPR array search will be done for each entry independently.
+
+For example:
+
+```
+python CRISPRidentifier.py --file InputFile
+```
+
 
 #### Optional flags
 
@@ -82,9 +102,23 @@ Specifies the folder with fasta files which will be used as input for the tool.
 
 Specifies the path and name of the folder with the output results. If not specified the results will appear in "Results" folder
 
+
+For example:
+
+```
+python CRISPRidentifier.py --input_folder TestInput --result_folder Results
+```
+
 --pickle_report "Folder name for pickle report"
 
 Specifies if found CRISPR arrays should be stored also as python objects. Turned off by default.
+
+
+For example:
+
+```
+python CRISPRidentifier.py --input_folder TestInput --pickle_report PickleReportFolder
+```
 
 
 ##### Classification parameters
@@ -92,22 +126,34 @@ Specifies if found CRISPR arrays should be stored also as python objects. Turned
 --model "Model to use"
 
 
-Takes values: 8, 9, 10, ALL and specifies the classification model. The default value is 8.
+Takes values: 8, 9, 10, ALL and specifies the classification model. The default value is ALL.
 If the value "ALL" is picked for the flag the certainty score will be calculated as average between all three available models.
 
 
+For example:
+
+```
+python CRISPRidentifier.py --input_folder TestInput --model 8
+```
+
+
+```
+python CRISPRidentifier.py --input_folder TestInput --model ALL
+```
+
+
 ##### Performance speed
-
---parallel  "Bool"
-
-Specifies if multiprocessing is used or not. Default value is True.
-
---cpu "int"
-
 --fast_run "Bool"
 
-Specifies if the repeat enhancement step should be skipped which drastically speeds up the process but might decrease the recall quality.
-The default value is False
+Specifies if the repeat set enhancement step should be skipped which drastically speeds up the process but might decrease the recall quality.
+Only matching pairs found with Vmatch will be used as repeat candidates. Automatically turns off filter approximation and start_end approximation (see enhancement_max_min and enhancement_start_end)
+Turned off by default.
+
+For example:
+
+```
+python CRISPRidentifier.py --input_folder TestInput --fast_run True
+```
 
 --enhancement_max_min "Bool"
 
@@ -120,9 +166,13 @@ Specifies if the start/end omitting of the repeat candidates should be done to e
 The default value is True
 
 
+For example:
 
+```
+python CRISPRidentifier.py --input_folder TestInput --enhancement_max_min True --enhancement_start_end False
+```
 
-##### Filtering criteria 
+##### Candidate filtering criteria 
 
 
 --min_len_rep  "int"
@@ -146,6 +196,13 @@ Specifies the maximum average length of spacers in a CRISPR array. The default v
 Specifies the minimum number of repeats in a CRISPR array. The default value: 3
 
 
+For example:
+
+```
+python CRISPRidentifier.py --input_folder TestInput --min_len_rep 25 --max_len_rep 50 --min_repeats 2 
+```
+
+
 ##### Additional computations
 
 
@@ -158,16 +215,31 @@ Specifies if Cas genes should be predicted. The default value is False.
 Specifies if IS-Elements should be predicted. The default value is False.
 
 
-
-## Running the tool
-
-The simplest possible way to execute the tool is just to provide the only mandatory flag which is the input folder.
-
-We prepared the test folder which can be used for the test run.
-
 ```
-python CRISPRidentifier.py --input_folder TestInput
+python CRISPRidentifier.py --input_folder TestInput --cas True --is_element True 
 ```
+
+## Output files
+
+The output folder for each input entries consist of the following files.
+
+There are 5 files of text representations of the found CRISPR arrays what correspond to:
+Best candidates
+
+Alternative candidates
+
+Possible candidates
+
+Discarded possible candidates 
+
+Bad candidates
+
+Each text representation is complemented with a .bed format summary which specifies the CRISPR array start and end positions as well as the strand.
+
+Finally the output contains a .csv summary of all the identified CRISPR arrays.
+
+
+
 
 
 
