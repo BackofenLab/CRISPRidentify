@@ -150,7 +150,7 @@ list_ml_classifiers = [ClassifierWrapper(classifier_type=None,
                                                      format(model))
                        for model in list_models]
 
-possible_differentiate_model = load('training_new_model_possiple_split/random_forest_positive.joblib')
+possible_differentiate_model = load('training_new_model_possible_split/random_forest_positive.joblib')
 
 
 def run_over_folder_of_files(folder, result_folder, chunk_number=None, number_of_chunks=None,
