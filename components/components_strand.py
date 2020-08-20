@@ -21,7 +21,6 @@ def to_rna(seq):
 
 
 def get_orientation(sequence):
-    """
     rev_comp = rev_compliment(sequence)
 
     orig_rna, rev_comp_rna = to_rna(sequence), to_rna(rev_comp)
@@ -59,8 +58,6 @@ def get_orientation(sequence):
         return 1
     else:
         return 0
-    """
-    return 1
 
 
 class StrandComputationSingleCrispr:
