@@ -1,7 +1,7 @@
 from functools import wraps
 
 
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 
 def exception_handler(function):

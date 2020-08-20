@@ -65,10 +65,15 @@ conda activate crispr_identifier_env
 We suggest running the command line interface.
 We prepared the test folder which can be used for the test run.
 
-For example:
+Example of running the tool over a folder of filex:
 
 ```
 python CRISPRidentifier.py --input_folder TestInput
+```
+
+Example of running the tool over a single multiline fasta input:
+```
+python CRISPRidentifier.py --file TestInputMultiline/MultilineFasta.fasta
 ```
 
 ### Flags

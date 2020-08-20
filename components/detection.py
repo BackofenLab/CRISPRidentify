@@ -412,9 +412,9 @@ class Detector(object):
         self._get_double_dna()
         self._mkvtree_command()
         self._vmatch_command()
-        self._take_vmatch_result_old()
+        #self._take_vmatch_result_old()
         self._take_vmatch_results_new()
-        self._check_old_new_vmatch()
+        #self._check_old_new_vmatch()
         self._clean_after_mkv()
         self._find_clusters()
 
@@ -429,7 +429,7 @@ class Detector(object):
         else:
             self._fuzzy_search()
 
-        self._write_fuzzy_candidates()
+        #self._write_fuzzy_candidates()
 
         self._filter_fuzzy_searches_same_start_end()
         self._apply_advanced_filters()
@@ -515,7 +515,7 @@ class Detector(object):
               "-sort ia -best 1000000 -selfun tools/vmatch/sel392.so 55 " + "new_input.fa" + " > " +\
               "vmatch_result.txt"
 
-        os.system(cmd)
+        #os.system(cmd)
 
         cmd = "tools/vmatch/vmatch " + "-l " + l_flag_val + " -evalue " + e_value_flag_val + " -e " + e_flag_val + \
               " -s leftseq " + " -absolute -nodist -noevalue -noscore -noidentity " + \
@@ -539,7 +539,10 @@ class Detector(object):
             os.remove(el)
 
         #os.remove("vmatch_result.txt")
-        #os.remove("vmatch_result_new.txt")
+        try:
+            os.remove("vmatch_result_new.txt")
+        except Exception:
+            pass
 
     def _take_vmatch_result_old(self):
         """Works with the vmatch result file
@@ -582,31 +585,21 @@ class Detector(object):
             all_lines = f.readlines()
             indexes_headers = [index for index, line in enumerate(all_lines) if ">" in line]
 
-            info_lines = all_lines[indexes_headers[0]:]
+            if indexes_headers:
+                info_lines = all_lines[indexes_headers[0]:]
+            else:
+                info_lines = []
 
-            list_param = None
-            seq_dr = None
-
-            for line in info_lines:
+            for index, line in enumerate(info_lines):
                 if line[0] == '>':
-                    if list_param:
-                        if len(seq_dr) <= cutoff:
-                            repeat = V_Repeat(int(list_param[2]), int(list_param[5]), int(list_param[1]), seq_dr)
-                            self.list_repeat_candidates_new.append(repeat)
-                            seq_dr = None
-
+                    seq_dr = info_lines[index+1].strip()
                     line = line.replace(">", "> ")
                     line = line.replace(' +', ' ')
                     list_param = line.split()
+                    if len(seq_dr) >= cutoff:
+                        seq_dr = seq_dr[:55]
+                        list_param[1] = 55
 
-                elif len(line.rstrip()) > 0:
-                    if not seq_dr:
-                        seq_dr = line.rstrip()
-                    else:
-                        seq_dr += line.rstrip()
-
-            if list_param:
-                if len(seq_dr) <= cutoff:
                     repeat = V_Repeat(int(list_param[2]), int(list_param[5]), int(list_param[1]), seq_dr)
                     self.list_repeat_candidates_new.append(repeat)
 
@@ -614,6 +607,14 @@ class Detector(object):
 
     def _check_old_new_vmatch(self):
         if len(self.list_repeat_candidates) != len(self.list_repeat_candidates_old):
+            print(len(self.list_repeat_candidates))
+            print(len(self.list_repeat_candidates_old))
+
+            for r_o, r_n in zip(self.list_repeat_candidates, self.list_repeat_candidates_old):
+                if r_o != r_n:
+                    print(r_o)
+                    print(r_n)
+                    print("____")
             self.list_repeat_candidates = self.list_repeat_candidates_old
         else:
             if all([r_o == r_new for r_o, r_new in zip(self.list_repeat_candidates_old, self.list_repeat_candidates_new)]):

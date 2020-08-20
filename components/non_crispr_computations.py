@@ -12,6 +12,7 @@ from components_rev_com_crispr import RevComComputation
 
 from components_cas_identifier import complete_info_with_cas_identifier
 
+
 class AdditionalCalculations:
     def __init__(self, input_file, full_dna, list_of_crisprs, hmm_model_is_element, hmm_model_cas_genes):
         self.input_file = input_file
@@ -127,9 +128,8 @@ class AdditionalCalculations:
         return dict_groups, dict_groups_separated
 
     def calculate_strand(self):
-        #st = StrandComputation(list_of_crisprs=self.list_of_crisprs)
-        #return st.output()
-        return "Forward"
+        st = StrandComputation(list_of_crisprs=self.list_of_crisprs)
+        return st.output()
 
     def calculate_leader(self):
         flss = FullLeaderSeqSearch(self.list_of_crisprs, self.full_dna)

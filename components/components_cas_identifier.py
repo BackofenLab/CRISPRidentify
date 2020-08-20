@@ -36,25 +36,23 @@ def cas_identifier_result_folder_parser(folder_path):
 
 
 def run_cas_idintifier(file_name):
+    try:
+        cmd = "mkdir output_cas"
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        process.communicate()
+    except Exception:
+        pass
+
     command = f"python tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py -f {file_name} -ho output_cas/hmmsearch -st dna -co output_cas/cassette"
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    process.communicate()
+    a, b = process.communicate()
 
 
 def complete_info_with_cas_identifier(file_name):
-    try:
-        os.system("mkdir output")
-    except:
-        pass
     run_cas_idintifier(file_name)
     dict_cas = cas_identifier_result_folder_parser("output_cas/cassette")
     try:
-        pass
-        #shutil.rmtree("output_cas")
-    except Exception:
-        pass
-    try:
-        shutil.rmtree("output")
+        shutil.rmtree("output_cas")
     except Exception:
         pass
 

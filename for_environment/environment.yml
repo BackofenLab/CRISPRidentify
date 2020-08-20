@@ -43,7 +43,7 @@ dependencies:
   - dill
   - requests
   - toolz
-  - regex
+  - regex=2019.03.09
   - joblib
 
 
