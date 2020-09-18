@@ -1,5 +1,5 @@
 
-# CRISPRIdentifier: Identification of CRISPR arrays using machine learning approach
+# CRISPRidentified: Identification of CRISPR arrays using machine learning approach
 
 CRISPRIdentifier is a tool to search for CRISPR arrays which utilises 
 machine learning approach for distinguishing false candidates from true CRISPRS.
