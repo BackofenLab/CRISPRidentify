@@ -24,6 +24,8 @@ class CrisprConsensus(object):
             print('Got repeats of 0 length')
         elif self.num_different_repeat_length != 1:
             print('Got a case with different repeat lengths')
+            for rep_gapped in self.list_repeats_gaped:
+                print(rep_gapped)
         else:            
             self.consensus = ''
             for char_ind, _ in enumerate(self.list_repeats_gaped[0]):

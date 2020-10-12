@@ -393,6 +393,8 @@ class Detector(object):
         self.param_min_avg_spacer_length = parameters["param_min_avg_spacer_length"]
         self.param_max_avg_spacer_length = parameters["param_max_avg_spacer_length"]
         self.param_min_repeats = parameters["param_min_repeats"]
+        self.param_max_identical_spacers = parameters["param_max_identical_spacers"]
+        self.param_max_identical_cluster_spacers = parameters["param_max_identical_cluster_spacers"]
 
         self.list_repeat_candidates = []
         self.list_repeat_candidates_old = []
@@ -453,19 +455,9 @@ class Detector(object):
         Result folder there the final result will be written.
         Temp folder is for intermediate computations.
         Creates three class attributes: file_base result_path and temp_path
-        Takes: nothing
-        Returns: nothing"""
+        """
 
         self.file_base = basename(self.file_path)
-
-        """
-        temp_path = "Temp/Temp_{}".format(self.file_base.split(".")[0])
-        if not os.path.exists(temp_path):
-            os.makedirs(temp_path)
-        
-        
-        self.temp_path = temp_path
-        """
 
     def _create_input_uppercase(self):
         with open(self.file_path, 'r') as f:
@@ -783,7 +775,8 @@ class Detector(object):
         print("Filtering the candidates")
         afsf = AdvancedFuzzySearchFilter(min_column_dominance_repeat=0.4,
                                          max_spacer_length=140, max_column_dominance_spacer=0.8,
-                                         max_allowed_conseq_spacers=3, max_allowed_same_spacers=4,
+                                         max_allowed_consecutive_spacers=self.param_max_identical_cluster_spacers,
+                                         max_allowed_same_spacers=self.param_max_identical_spacers,
                                          max_inconsistent_columns=5,
                                          min_avg_repeat_length=self.param_min_avg_repeat_length,
                                          max_avg_repeat_length=self.param_max_avg_repeat_length,

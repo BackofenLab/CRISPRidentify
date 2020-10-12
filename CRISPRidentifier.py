@@ -77,6 +77,12 @@ parser.add_argument('--enhancement_max_min', type=bool, default=True,
 parser.add_argument('--enhancement_start_end', type=bool, default=True,
                     help='enhancement with start end omitting (default: True)')
 
+parser.add_argument('--max_identical_spacers', type=int, default=4,
+                    help='maximum number of identical spacers in the array (default: 4)')
+
+parser.add_argument('--max_identical_cluster_spacers', type=int, default=3,
+                    help='maximum number of consecutive identical spacers in the array (default: 3)')
+
 
 args = parser.parse_args()
 complete_path_folder_info = args.input_folder
@@ -120,13 +126,17 @@ max_rep = args.max_len_rep
 max_spacer = args.max_len_spacer
 min_spacer = args.min_len_spacer
 min_repeats = args.min_repeats
+max_identical_spacers = args.max_identical_spacers
+max_identical_cluster_spacers = args.max_identical_cluster_spacers
 
 parameters = {
     "param_min_avg_repeat_length": min_rep,
     "param_max_avg_repeat_length": max_rep,
     "param_max_avg_spacer_length": max_spacer,
     "param_min_avg_spacer_length": min_spacer,
-    "param_min_repeats": min_repeats
+    "param_min_repeats": min_repeats,
+    "param_max_identical_spacers": max_identical_spacers,
+    "param_max_identical_cluster_spacers": max_identical_cluster_spacers
 }
 
 log_file = args.log_file

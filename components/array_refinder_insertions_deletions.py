@@ -138,6 +138,9 @@ class OneSpacerInsertionRefiner:
         for global_insertion_index in self.indexes_insertions:
             if gaped_repeat[global_insertion_index] != " ":
                 index_first_insertion = global_insertion_index
+                chars_in_the_gap = [r[index_first_insertion] for r in self.repeats_gaped]
+                num_non_gaps = sum([1 if x != " " else 0 for x in chars_in_the_gap])
+                insertion_only_in_the_refined_repeat = True if num_non_gaps == 1 else False
 
                 new_repeats = self.repeats[:]
                 new_repeats[self.repeat_index_to_refine] = new_repeats[self.repeat_index_to_refine][1:]
@@ -149,16 +152,26 @@ class OneSpacerInsertionRefiner:
                 new_starts = self.starts[:]
                 new_starts[self.repeat_index_to_refine] = new_starts[self.repeat_index_to_refine] - 1
 
-                new_repeats_gaped = []
-                for gaped_repeat in self.repeats_gaped:
-                    if gaped_repeat[index_first_insertion] == " ":
-                        gaped_repeat_new = gaped_repeat[:index_first_insertion] + \
-                                           gaped_repeat[(index_first_insertion + 1):]
-                        new_repeats_gaped.append(gaped_repeat_new)
-                    else:
-                        new_repeats_gaped.append(gaped_repeat)
 
-                new_repeats_gaped[self.repeat_index_to_refine] = new_repeats_gaped[self.repeat_index_to_refine][1:]
+                if insertion_only_in_the_refined_repeat:
+
+                    new_repeats_gaped = []
+                    for gaped_repeat in self.repeats_gaped:
+                        if gaped_repeat[index_first_insertion] == " ":
+                            gaped_repeat_new = gaped_repeat[:index_first_insertion] + \
+                                               gaped_repeat[(index_first_insertion + 1):]
+                            new_repeats_gaped.append(gaped_repeat_new)
+                        else:
+                            new_repeats_gaped.append(gaped_repeat)
+
+                    new_repeats_gaped[self.repeat_index_to_refine] = new_repeats_gaped[self.repeat_index_to_refine][1:]
+
+                else:
+                    new_repeats_gaped = self.repeats_gaped
+                    repeat_to_refine = new_repeats_gaped[self.repeat_index_to_refine]
+                    repeat_to_refine = repeat_to_refine[1:index_first_insertion+1] + " "\
+                                       + repeat_to_refine[index_first_insertion+1:]
+                    new_repeats_gaped[self.repeat_index_to_refine] = repeat_to_refine
 
                 new_candidate = CrisprCandidate(list_repeats=new_repeats,
                                                 list_repeats_gaped=new_repeats_gaped,

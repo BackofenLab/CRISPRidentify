@@ -1,4 +1,5 @@
 from functools import wraps
+from itertools import groupby
 
 
 DEBUG_MODE = False
@@ -39,7 +40,7 @@ def printing_if_filtered(function):
 
 class AdvancedFuzzySearchFilter:
     def __init__(self, min_column_dominance_repeat, min_avg_spacer_length,
-                 max_spacer_length, max_column_dominance_spacer, max_allowed_conseq_spacers,
+                 max_spacer_length, max_column_dominance_spacer, max_allowed_consecutive_spacers,
                  max_allowed_same_spacers, max_inconsistent_columns, min_avg_repeat_length,
                  max_avg_repeat_length, max_avg_spacer_length, min_repeats):
 
@@ -47,7 +48,7 @@ class AdvancedFuzzySearchFilter:
         self.min_avg_spacer_length = min_avg_spacer_length
         self.max_spacer_length = max_spacer_length
         self.max_column_dominance_spacer = max_column_dominance_spacer
-        self.max_allowed_conseq_spacers = max_allowed_conseq_spacers
+        self.max_allowed_consecutive_spacers = max_allowed_consecutive_spacers
         self.max_allowed_same_spacers = max_allowed_same_spacers
         self.max_inconsistent_columns = max_inconsistent_columns
         self.min_avg_repeat_length = min_avg_repeat_length
@@ -152,17 +153,18 @@ class AdvancedFuzzySearchFilter:
     @printing_if_filtered
     @exception_handler
     def _filter_by_the_same_spacer(self, candidate):
-        """
         list_spacers = candidate.list_spacers
+        list_spacers = [s for s in list_spacers if s]
         groups = [len(list(group)) for key, group in groupby(list_spacers)]
-        if max(groups) > self.max_allowed_conseq_spacers:
-            return False
+        if self.max_allowed_consecutive_spacers:
+            if max(groups) > self.max_allowed_consecutive_spacers:
+                return False
 
         list_sorted_spacers = sorted(list_spacers)
         groups_sorted = [len(list(group)) for key, group in groupby(list_sorted_spacers)]
-        if max(groups_sorted) > self.max_allowed_same_spacers:
-            return False
-        """
+        if self.max_allowed_same_spacers:
+            if max(groups_sorted) > self.max_allowed_same_spacers:
+                return False
         return True
 
     @printing_if_filtered
