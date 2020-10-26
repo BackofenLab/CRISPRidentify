@@ -57,7 +57,7 @@ Please unzip models_cas_genes.zip into the same folder.
 Before running the tool one need to activate the corresponding environment.
 
 ```
-conda activate crispr_identifier_env
+conda activate crispr_identify_env
 ```
 
 ## Running the tool 
@@ -68,12 +68,12 @@ We prepared the test folder which can be used for the test run.
 Example of running the tool over a folder of files:
 
 ```
-python CRISPRidentifier.py --input_folder TestInput
+python CRISPRidentify.py --input_folder TestInput
 ```
 
 Example of running the tool over a single multiline fasta input:
 ```
-python CRISPRidentifier.py --file TestInputMultiline/MultilineFasta.fasta
+python CRISPRidentify.py --file TestInputMultiline/MultilineFasta.fasta
 ```
 
 ### Flags
@@ -91,7 +91,7 @@ Specifies the mode where a folder with fasta files which will be used as the inp
 then conducted separately for each file in the corresponding input folder
 
 ```
-python CRISPRidentifier.py --input_folder TestInput
+python CRISPRidentify.py --input_folder TestInput
 ```
 
 ##### Input as a single file
@@ -104,7 +104,7 @@ The CRISPR array search will be done for each entry independently.
 For example:
 
 ```
-python CRISPRidentifier.py --file InputFile
+python CRISPRidentify.py --file InputFile
 ```
 
 
@@ -120,7 +120,7 @@ Specifies the path and name of the folder with the output results. If not specif
 For example:
 
 ```
-python CRISPRidentifier.py --input_folder TestInput --result_folder Results
+python CRISPRidentify.py --input_folder TestInput --result_folder Results
 ```
 
 --pickle_report "Folder name for pickle report"
@@ -131,7 +131,7 @@ Specifies if found CRISPR arrays should be stored also as python objects. Turned
 For example:
 
 ```
-python CRISPRidentifier.py --input_folder TestInput --pickle_report PickleReportFolder
+python CRISPRidentify.py --input_folder TestInput --pickle_report PickleReportFolder
 ```
 
 
@@ -147,12 +147,12 @@ If the value "ALL" is picked for the flag the certainty score will be calculated
 For example:
 
 ```
-python CRISPRidentifier.py --input_folder TestInput --model 8
+python CRISPRidentify.py --input_folder TestInput --model 8
 ```
 
 
 ```
-python CRISPRidentifier.py --input_folder TestInput --model ALL
+python CRISPRidentify.py --input_folder TestInput --model ALL
 ```
 
 
@@ -166,7 +166,7 @@ Turned off by default.
 For example:
 
 ```
-python CRISPRidentifier.py --input_folder TestInput --fast_run True
+python CRISPRidentify.py --input_folder TestInput --fast_run True
 ```
 
 --enhancement_max_min "Bool"
@@ -183,7 +183,7 @@ The default value is True
 For example:
 
 ```
-python CRISPRidentifier.py --input_folder TestInput --enhancement_max_min True --enhancement_start_end False
+python CRISPRidentify.py --input_folder TestInput --enhancement_max_min True --enhancement_start_end False
 ```
 
 ##### Candidate filtering criteria 
@@ -213,7 +213,7 @@ Specifies the minimum number of repeats in a CRISPR array. The default value: 3
 For example:
 
 ```
-python CRISPRidentifier.py --input_folder TestInput --min_len_rep 25 --max_len_rep 50 --min_repeats 2 
+python CRISPRidentify.py --input_folder TestInput --min_len_rep 25 --max_len_rep 50 --min_repeats 2 
 ```
 
 
@@ -230,7 +230,7 @@ Specifies if IS-Elements should be predicted. The default value is False.
 
 
 ```
-python CRISPRidentifier.py --input_folder TestInput --cas True --is_element True 
+python CRISPRidentify.py --input_folder TestInput --cas True --is_element True 
 ```
 
 ## Output files

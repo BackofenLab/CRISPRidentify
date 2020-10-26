@@ -362,11 +362,11 @@ class Predictor(object):
             os.makedirs(result_path)       
         
         print("Writing Crispr Candidates into files")
-        f_best = open(result_path + '/Best_Candidates.txt', 'w')
+        f_best = open(result_path + '/Bona_fide_Candidates.txt', 'w')
         f_alternative = open(result_path + '/Alternative_Candidates.txt', 'w')
         f_possible = open(result_path + '/Possible_Candidates.txt', 'w')
         f_possible_discarded = open(result_path + '/Possible_Discarded_Candidates.txt', 'w')
-        f_bad = open(result_path + '/Bad_Candidates.txt', 'w')
+        f_bad = open(result_path + '/Low_score_Candidates.txt', 'w')
         
         for key in sorted(self.dict_best.keys()):
             crispr = self.dict_best[key][1]
@@ -470,7 +470,7 @@ class Predictor(object):
                 score = candidate[0]
                 crispr = candidate[1]
                 crispr_stats = crispr.compute_stats()
-                f_bad.write("Bad CRISPR: {}, {}-{}, number of Repeats: {}, avg. length of Repeat: {}, avg length of Spacer: {}\n\n"
+                f_bad.write("Low_score CRISPR: {}, {}-{}, number of Repeats: {}, avg. length of Repeat: {}, avg length of Spacer: {}\n\n"
                             .format(self.dict_crispr_indexes[key], crispr_stats["start"], crispr_stats["end"],
                                     crispr_stats["number_repeats"], crispr_stats["avg_repeat"],
                                     crispr_stats["avg_spacer"]))
@@ -536,10 +536,10 @@ class Predictor(object):
 
     def _write_csv_summary(self):
         result_path = self.result_folder_path + "/Result_" + self.file_base.split(".")[0]
-        bad_path = result_path + "/Bad_Candidates.txt"
+        bad_path = result_path + "/Low_score_Candidates.txt"
         possible_path = result_path + "/Possible_Candidates.txt"
         alternative_path = result_path + "/Alternative_Candidates.txt"
-        best_path = result_path + "/Best_Candidates.txt"
+        best_path = result_path + "/Bona_fide_Candidates.txt"
 
         results_best = ResultParser(best_path).output()
         results_alternative = ResultParser(alternative_path).output()
@@ -572,10 +572,10 @@ class Predictor(object):
 
     def _write_bed_summary(self):
         result_path = self.result_folder_path + "/Result_" + self.file_base.split(".")[0]
-        bad_path = result_path + "/Bad_Candidates.txt"
+        bad_path = result_path + "/Low_score_Candidates.txt"
         possible_path = result_path + "/Possible_Candidates.txt"
         alternative_path = result_path + "/Alternative_Candidates.txt"
-        best_path = result_path + "/Best_Candidates.txt"
+        best_path = result_path + "/Bona_fide_Candidates.txt"
 
         results_best = ResultParser(best_path).output()
         results_alternative = ResultParser(alternative_path).output()
@@ -583,8 +583,8 @@ class Predictor(object):
         results_bad = ResultParser(bad_path).output()
 
         for result, file_name in zip([results_best, results_alternative, results_possible, results_bad],
-                                     ["Best_candidates.txt", "Alternative_candidates.txt",
-                                      "Possible_candidates.txt", "Bad_candidates.txt"]):
+                                     ["Bona_fide_Candidates.txt", "Alternative_candidates.txt",
+                                      "Possible_candidates.txt", "Low_score_Candidates.txt"]):
 
             bed_file_path = result_path + "/Bed_" + file_name
             with open(bed_file_path, "w") as f:

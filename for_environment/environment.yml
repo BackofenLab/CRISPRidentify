@@ -1,4 +1,4 @@
-name: crispr_identifier_cas_env
+name: crispr_identify_env
 channels:
   - conda-forge
   - bioconda

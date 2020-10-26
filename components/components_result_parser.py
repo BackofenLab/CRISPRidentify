@@ -39,7 +39,7 @@ class ResultParser:
 
 class CRISPRArrayParsingContainer:
     def __init__(self, category, crispr_index, start, end, number_of_repeats, avg_spacer_length, consensus_repeat):
-        self.category = category if category != "CRISPR" else "Best"
+        self.category = category if category != "CRISPR" else "Bona_fide"
         self.crispr_index = crispr_index
         self.start = start
         self.end = end
