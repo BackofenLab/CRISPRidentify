@@ -154,7 +154,6 @@ class OneSpacerInsertionRefiner:
 
 
                 if insertion_only_in_the_refined_repeat:
-
                     new_repeats_gaped = []
                     for gaped_repeat in self.repeats_gaped:
                         if gaped_repeat[index_first_insertion] == " ":
