@@ -107,7 +107,7 @@ if complete_path_folder_info:
 
 complete_path_file = args.file
 folder_result = args.result_folder
-report_pickle = args.pickle_report
+pickle_folder = args.pickle_report
 list_models = ["8", "9", "10"] if args.model == "ALL" else [args.model]
 flag_possible_differentiate_model = args.additional_model
 if flag_possible_differentiate_model not in ["possible", "all"]:
@@ -181,8 +181,7 @@ list_ml_classifiers = [ClassifierWrapper(classifier_type=None,
 possible_differentiate_model = load('training_new_model_possible_split/random_forest_positive.joblib')
 
 
-def run_over_folder_of_files(folder, result_folder, chunk_number=None, number_of_chunks=None,
-                             report_pickle_folder=report_pickle):
+def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=None, number_of_chunks=None):
 
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
     files = sorted(files)
@@ -200,6 +199,7 @@ def run_over_folder_of_files(folder, result_folder, chunk_number=None, number_of
     for index, file in enumerate(chunk, 1):
         print("\n\n\n\t\t\t\tExecuting file {} out of {} ({})\n\n\n".format(index, len(chunk), file))
         pl = Pipeline(result_folder_path="{}/".format(result_folder),
+                      pickle_folder_path="{}/".format(pickle_folder),
                       file_path=join(folder, file),
                       list_ml_classifiers=list_ml_classifiers,
                       possible_differentiate_model=possible_differentiate_model,
@@ -208,14 +208,11 @@ def run_over_folder_of_files(folder, result_folder, chunk_number=None, number_of
                       parameters=parameters,
                       flags=flags)
 
-        #TODO introduce pickle in the pipeline
-        #if report_pickle_folder:
-            #pr.report_into_separate_file(report_pickle_folder)
 
-
-def run_over_one_file(file, result_folder, report_pickle_folder=report_pickle):
+def run_over_one_file(file, result_folder, pickle_folder):
     print("\n\n\n\t\t\t\tExecuting file {}\n\n\n".format(file))
     pl = Pipeline(result_folder_path="{}/".format(result_folder),
+                  pickle_folder_path="{}/".format(pickle_folder),
                   file_path=join(file),
                   list_ml_classifiers=list_ml_classifiers,
                   possible_differentiate_model=possible_differentiate_model,
@@ -223,10 +220,6 @@ def run_over_one_file(file, result_folder, report_pickle_folder=report_pickle):
                   list_features=feature_list,
                   parameters=parameters,
                   flags=flags)
-
-    # TODO same
-    #if report_pickle_folder:
-    #    pr.report_into_separate_file(report_pickle_folder)
 
 
 def multiline_fasta_check(file):
@@ -262,12 +255,12 @@ if __name__ == "__main__":
             print("Multifasta")
             folder_multifasta = multiline_fasta_handle(complete_path_file)
             print(folder_multifasta)
-            run_over_folder_of_files(folder_multifasta, folder_result)
+            run_over_folder_of_files(folder_multifasta, folder_result, pickle_folder)
             shutil.rmtree(folder_multifasta)
         else:
-            run_over_one_file(complete_path_file, folder_result)
+            run_over_one_file(complete_path_file, folder_result, pickle_folder)
     else:
-        run_over_folder_of_files(complete_path_folder, folder_result,
+        run_over_folder_of_files(complete_path_folder, folder_result, pickle_folder,
                                  chunk_number=chunk_number, number_of_chunks=number_of_chunks)
 
     end_time = time()

@@ -7,10 +7,11 @@ from module_output_maker import OutputMaker
 
 
 class Pipeline:
-    def __init__(self, result_folder_path, file_path, list_ml_classifiers,
+    def __init__(self, result_folder_path, pickle_folder_path, file_path, list_ml_classifiers,
                  possible_differentiate_model, flag_possible_differential_model,
                  list_features, parameters, flags):
         self.result_folder_path = result_folder_path + "/Result_" + file_path.split(".")[0]
+        self.pickle_folder_path = pickle_folder_path
         self.file_path = file_path
         self.list_ml_classifiers = list_ml_classifiers
         self.possible_differentiate_model = possible_differentiate_model
@@ -74,11 +75,16 @@ class Pipeline:
 
     def _write_output(self):
         print("6. Write down the results")
-        om = OutputMaker(result_path=self.result_folder_path,
+        om = OutputMaker(file_path=self.file_path,
+                         parameters=self.parameters,
+                         result_path=self.result_folder_path,
+                         pickle_result_path=self.pickle_folder_path,
                          categories=self.categories,
                          non_array_data=self.non_array_data,
                          list_features=self.list_features,
                          header=self.header)
+
+
 
 
 

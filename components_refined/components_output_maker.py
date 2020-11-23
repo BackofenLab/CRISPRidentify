@@ -1,4 +1,6 @@
 import os
+import pickle
+from os.path import basename
 from components_detection_refinement import CrisprCandidate
 
 
@@ -257,3 +259,27 @@ class SummaryOutputMaker:
                         else:
                             f.write("{} [{}-{}]".format(cluster[2], cluster[0], cluster[1]))
                 f.write("\n\n")
+
+
+class PickleOutputMaker:
+    def __init__(self, file_path, pickle_result_folder, parameters, categories,
+                 non_array_data, header, list_feature_names):
+        self.file_name = file_path
+        self.pickle_result_folder = pickle_result_folder
+        self.parameters = parameters
+        self.categories = categories
+        self.non_array_data = non_array_data
+        self.header = header
+        self.list_feature_names = list_feature_names
+
+        self._write_pickle()
+
+    def _write_pickle(self):
+        try:
+            os.mkdir(self.pickle_result_folder)
+        except OSError:
+                pass
+
+        file_base = basename(self.file_name)
+        acc_num = file_base.split(".")[0]
+        pickle.dump(self.categories, open(self.pickle_result_folder + '/' + acc_num + '.pkl', "wb"))
