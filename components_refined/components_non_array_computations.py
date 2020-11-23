@@ -383,10 +383,14 @@ def cas_identifier_result_folder_parser(folder_path):
     return dict_cas_proteins
 
 
-def run_cas_idintifier(file_name):
+def run_cas_identifier(file_name):
     try:
-        cmd = "mkdir output_cas"
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        cmd1 = "mkdir output_cas"
+        cmd2 = "mkdir output_cas/cassette"
+        process = subprocess.Popen(cmd1, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        process.communicate()
+
+        process = subprocess.Popen(cmd2, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
     except Exception:
         pass
@@ -402,8 +406,9 @@ def run_cas_idintifier(file_name):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     a, b = process.communicate()
 
+
 def complete_info_with_cas_identifier(file_name):
-    run_cas_idintifier(file_name)
+    run_cas_identifier(file_name)
     dict_cas = cas_identifier_result_folder_parser("output_cas/cassette")
     try:
         shutil.rmtree("output_cas")
