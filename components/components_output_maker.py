@@ -142,8 +142,7 @@ class SimpleOutputMaker:
                     if category_name in self.non_array_data["Strand"]:
                         strand = self.non_array_data["Strand"][category_name][index]
                     else:
-                        strand = "Not Computed"
-
+                        strand = "Forward (Orientation was not computed)"
                     if strand == "Reversed":
                         crispr = RevComComputation(array).output()
                     else:
@@ -209,7 +208,7 @@ class SummaryOutputMaker:
                     f.write("\n\n")
 
                 strand = self.non_array_data["Strand"]["Bona-fide"][index]
-                if strand == "Forward":
+                if strand in ("Forward", "Forward (Orientation was not computed)"):
                     output_crispr = OutputCrispr(array)
                 else:
                     output_crispr = OutputCrispr(RevComComputation(array).output())
@@ -335,10 +334,11 @@ class SummaryMakerCSV:
                     start = str(crispr_stats["start"])
                     end = str(crispr_stats["end"])
                     length = str(int(end) - int(start) + 1)
-                    if strand == "Forward":
+                    if strand in ("Forward", "Forward (Orientation was not computed)"):
                         consensus_repeat = crispr.consensus
                     else:
                         consensus_repeat = rev_compliment_seq(crispr.consensus)
+
                     repeat_length = str(crispr_stats["avg_repeat"])
                     average_spacer_length = str(crispr_stats["avg_spacer"])
                     number_of_spacers = str(crispr_stats["number_repeats"] - 1)

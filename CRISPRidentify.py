@@ -36,10 +36,13 @@ parser.add_argument('--result_folder', type=str, default="Results",
 parser.add_argument('--pickle_report', type=str, default='',
                     help='pickled report file (default: None)')
 
-parser.add_argument('--cas', type=bool, default=True,
-                    help='cas genes computation (default: True)')
+parser.add_argument('--strand', type=str, default=True,
+                    help='CRISPR array orientation prediction (default: True)')
 
-parser.add_argument('--is_element', type=bool, default=True,
+parser.add_argument('--cas', type=str, default=False,
+                    help='cas genes computation (default: False)')
+
+parser.add_argument('--is_element', type=str, default=True,
                     help='is element computation (default: True)')
 
 parser.add_argument('--parallel', type=str, default=True,
@@ -52,7 +55,7 @@ parser.add_argument('--fast_run', type=str, default=False,
                     help='fast run option (default: False)')
 
 parser.add_argument('--degenerated', type=bool, default=True,
-                    help='degenerated_repeat_computation (default: False)')
+                    help='degenerated_repeat_computation (default: True)')
 
 parser.add_argument('--min_len_rep', type=int, default=21,
                     help='min avg. length of the repeats (default: 21)')
@@ -116,6 +119,7 @@ flag_parallel = False if (args.parallel in ["False", False]) else True
 flag_cpu = args.cpu
 flag_fast_run = False if (args.fast_run in ["False", False]) else True
 
+strand_flag = False if (args.strand in ["False", False]) else True
 cas_flag = False if (args.cas in ["False", False]) else True
 is_flag = False if (args.is_element in ["False", False]) else True
 degenerated_flag = False if (args.degenerated in ["False", False]) else True
@@ -123,6 +127,7 @@ degenerated_flag = False if (args.degenerated in ["False", False]) else True
 flags = {"flag_parallel": flag_parallel,
          "flag_cpu": flag_cpu,
          "flag_fast_run": flag_fast_run,
+         "flag_strand": strand_flag,
          "flag_cas": cas_flag,
          "flag_is": is_flag,
          "flag_degenerated": degenerated_flag,
@@ -171,7 +176,7 @@ list_ml_classifiers = [ClassifierWrapper(classifier_type=None,
                                                      format(model))
                        for model in list_models]
 
-possible_differentiate_model = load('training_new_model_possible_split/random_forest_positive.joblib')
+
 
 
 def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=None, number_of_chunks=None):
@@ -195,8 +200,6 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
                       pickle_folder_path="{}".format(pickle_folder),
                       file_path=join(folder, file),
                       list_ml_classifiers=list_ml_classifiers,
-                      possible_differentiate_model=possible_differentiate_model,
-                      flag_possible_differential_model=flag_possible_differentiate_model,
                       list_features=feature_list,
                       parameters=parameters,
                       flags=flags)
@@ -208,8 +211,6 @@ def run_over_one_file(file, result_folder, pickle_folder):
                   pickle_folder_path="{}".format(pickle_folder),
                   file_path=join(file),
                   list_ml_classifiers=list_ml_classifiers,
-                  possible_differentiate_model=possible_differentiate_model,
-                  flag_possible_differential_model=flag_possible_differentiate_model,
                   list_features=feature_list,
                   parameters=parameters,
                   flags=flags)

@@ -7,15 +7,12 @@ from module_output_maker import OutputMaker
 
 
 class Pipeline:
-    def __init__(self, result_folder_path, pickle_folder_path, file_path, list_ml_classifiers,
-                 possible_differentiate_model, flag_possible_differential_model,
-                 list_features, parameters, flags):
+    def __init__(self, result_folder_path, pickle_folder_path, file_path,
+                 list_ml_classifiers, list_features, parameters, flags):
         self.result_folder_path = result_folder_path + "/" + file_path.split("/")[-1].split(".")[0]
         self.pickle_folder_path = pickle_folder_path
         self.file_path = file_path
         self.list_ml_classifiers = list_ml_classifiers
-        self.possible_differentiate_model = possible_differentiate_model
-        self.flag_possible_differential_model = flag_possible_differential_model
         self.list_features = [features.strip().split(".") for features in list_features]
         self.flags = flags
         self.parameters = parameters

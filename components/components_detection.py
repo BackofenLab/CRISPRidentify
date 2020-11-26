@@ -32,7 +32,6 @@ class VmatchRun:
         self._clean_after_mkv()
 
     def _get_run_settings(self):
-        # TODO check the performance difference
         if self.flag_fast_run:
             self.settings = {"vmatch -l": "23 25 60",
                              "vmatch -e": "1",
@@ -62,7 +61,6 @@ class VmatchRun:
             f.write(upper_dna)
 
     def _get_double_dna(self):
-        #  TODO double dna
         with open(self.file_path, 'r') as f:
             lines = f.readlines()
 
@@ -80,8 +78,6 @@ class VmatchRun:
         l_flag_val = self.settings["vmatch -l"]
         e_flag_val = self.settings["vmatch -e"]
         e_value_flag_val = self.settings["vmatch -evalue"]
-
-        # TODO compare with original run with sel392.so
 
         cmd = "tools/vmatch/vmatch " + "-l " + l_flag_val + " -evalue " + e_value_flag_val + " -e " + e_flag_val + \
               " -s leftseq " + " -absolute -nodist -noevalue -noscore -noidentity " + \
@@ -159,7 +155,6 @@ class CandidateMerger:
         self.dna = dna
         self.list_clusters = list_clusters
 
-        #  TODO what is wrong with distance?
         #self._merge_by_distance()
         self._merge_base_on_similarity_to_repeat()
 

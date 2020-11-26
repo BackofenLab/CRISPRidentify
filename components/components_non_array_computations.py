@@ -79,7 +79,7 @@ class StrandComputationSingleCrispr:
     def _compute_strand(self):
         consensus = self.crispr_array.consensus
         self.strand = get_orientation(consensus)
-        self.strand = "Forward" if self.strand else "Reverse"
+        self.strand = "Forward" if self.strand else "Reversed"
 
     def output(self):
         return self.strand
@@ -96,7 +96,7 @@ class StrandComputation:
         for index, crispr in enumerate(self.list_of_crisprs):
             consensus = crispr.consensus
             strand = get_orientation(consensus)
-            strand = "Forward" if strand else "Reverse"
+            strand = "Forward" if strand else "Reversed"
             self.dict_strands[index] = strand
 
     def output(self):
