@@ -13,14 +13,19 @@ class NonArrayComputations:
         self.categories = categories
         self.flags_non_arrays_computations = flags_non_arrays_computations
 
-        self.list_of_crisprs = [list_data[0][1] for list_data in self.categories[0].values()]
+        self.list_of_crisprs_bona_fide = [self.categories[0][key][0][1] for key in sorted(self.categories[0].keys())]
+        self.list_of_crisprs_alternative = [el[1] for key in self.categories[1].keys()
+                                            for el in self.categories[1][key]]
+        self.list_of_crisprs_possible = [el[1] for key in self.categories[2].keys()
+                                         for el in self.categories[2][key]]
+
         self.hmm_model_is_elements = "tools/hmm_search/models_is_element.hmm"
 
         self.is_element_result = {}
         self.cas_results = {}
         self.strand_results = {}
         self.leader_results = {}
-        self.leader_results_rev_com = {}
+        self.downstream_results = {}
         self.data_with_all_computations = {}
 
         self._get_complete_dna()
@@ -38,7 +43,6 @@ class NonArrayComputations:
     def _calculate_all_non_array_values(self):
         self._calculate_strand()
         self._calculate_leader()
-        self._calculate_leader_rev_com()
 
         if self.flags_non_arrays_computations["flag_cas"]:
             self._calculate_cas_proteins()
@@ -49,17 +53,18 @@ class NonArrayComputations:
                                            "Cas": self.cas_results,
                                            "Strand": self.strand_results,
                                            "Leader": self.leader_results,
-                                           "Leader_rev_com": self.leader_results_rev_com}
+                                           "Downstream": self.downstream_results
+                                           }
 
     def _calculate_is_elements(self):
-        fies = FullISElementSearch(full_dna=self.dna, list_of_crisprs=self.list_of_crisprs,
+        fies = FullISElementSearch(full_dna=self.dna, list_of_crisprs=self.list_of_crisprs_bona_fide,
                                    hmm_model=self.hmm_model_is_elements, min_similarity=0.9, min_coverage=0.9)
 
         self.is_element_result = fies.output()
 
     def _calculate_cas_proteins(self):
         def _get_crispr_intervals():
-            intervals = [(x.compute_stats()["start"], x.compute_stats()["end"]) for x in self.list_of_crisprs]
+            intervals = [(x.compute_stats()["start"], x.compute_stats()["end"]) for x in self.list_of_crisprs_bona_fide]
             return intervals
 
         def _filter_cas_genes(intervals, dict_cas_genes):
@@ -152,18 +157,16 @@ class NonArrayComputations:
         self.cas_results = dict_groups
 
     def _calculate_strand(self):
-        st = StrandComputation(list_of_crisprs=self.list_of_crisprs)
-        self.strand_results = st.output()
+        st = StrandComputation(list_of_crisprs=self.list_of_crisprs_bona_fide)
+        self.strand_results["Bona-fide"] = st.output()
+        st = StrandComputation(list_of_crisprs=self.list_of_crisprs_alternative)
+        self.strand_results["Alternative"] = st.output()
+        st = StrandComputation(list_of_crisprs=self.list_of_crisprs_possible)
+        self.strand_results["Possible"] = st.output()
 
     def _calculate_leader(self):
-        flss = FullLeaderSeqSearch(self.list_of_crisprs, self.dna)
-        self.leader_results = flss.output()
-
-    def _calculate_leader_rev_com(self):
-        list_of_crisprs_rev_com = [RevComComputation(crispr_candidate).output()
-                                   for crispr_candidate in self.list_of_crisprs]
-        flss = FullLeaderSeqSearch(list_of_crisprs_rev_com, self.dna)
-        self.leader_results_rev_com = flss.output()
+        flss = FullLeaderSeqSearch(self.list_of_crisprs_bona_fide, self.strand_results["Bona-fide"], self.dna)
+        self.leader_results, self.downstream_results = flss.output()
 
     def output(self):
         return self.data_with_all_computations

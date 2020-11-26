@@ -460,28 +460,36 @@ def rev_compliment_seq(seq):
 
 
 class FullLeaderSeqSearch:
-    def __init__(self, list_crispr_candidates, full_dna):
+    def __init__(self, list_crispr_candidates, list_corresponding_strands, full_dna):
         self.list_crispr_candidates = list_crispr_candidates
+        self.list_strands = list_corresponding_strands
         self.full_dna = full_dna
 
         self.dict_leader_data = {}
+        self.dict_downstream_data = {}
 
         self._compute_all_leaders()
 
     def _compute_all_leaders(self):
-        self.dict_leader_data = {index: LeaderSeqSearch(crispr_candidate, self.full_dna).output()
-                                 for index, crispr_candidate in enumerate(self.list_crispr_candidates)}
+        for index, strand, crispr_candidate in zip(range(len(self.list_crispr_candidates)),
+                                                   self.list_strands,
+                                                   self.list_crispr_candidates):
+            leader, downstream = LeaderSeqSearch(crispr_candidate, strand, self.full_dna).output()
+            self.dict_leader_data[index] = leader
+            self.dict_downstream_data[index] = downstream
 
     def output(self):
-        return self.dict_leader_data
+        return self.dict_leader_data, self.dict_downstream_data
 
 
 class LeaderSeqSearch:
-    def __init__(self, crispr_candidate, full_dna):
+    def __init__(self, crispr_candidate, strand, full_dna):
         self.crispr_candidate = crispr_candidate
+        self.strand = strand
         self.full_dna = full_dna
 
         self.leader = None
+        self.downstream_region = None
 
         self._compute_leader_seq()
 
@@ -489,23 +497,26 @@ class LeaderSeqSearch:
         list_repeat_indexes = self.crispr_candidate.list_repeat_starts
         list_repeats = self.crispr_candidate.list_repeats
         first_index = list_repeat_indexes[0]
-        second_index = list_repeat_indexes[1]
 
-        strand = "Forward" if first_index < second_index else "Reverse"
+        array_end = list_repeat_indexes[-1]
+        last_repeat_len = len(list_repeats[-1])
 
-        if strand == "Forward":
-            start = first_index - 101
+        if self.strand == "Forward":
+            start = first_index - 201
             end = first_index - 1
             self.leader = self.full_dna[start:end+1]
+            self.downstream_region = self.full_dna[array_end+last_repeat_len:array_end+last_repeat_len+200]
         else:
-            first_repeat = list_repeats[0]
-            len_first_repeat = len(first_repeat)
-            index_leader_start = first_index + len_first_repeat
-            self.leader = self.full_dna[index_leader_start:index_leader_start+100]
+            start = first_index - 201
+            end = first_index - 1
+            self.downstream_region = self.full_dna[start:end + 1]
+            self.leader = self.full_dna[array_end + last_repeat_len:array_end + last_repeat_len + 200]
+
+            self.downstream_region = rev_compliment_seq(self.downstream_region)
             self.leader = rev_compliment_seq(self.leader)
 
     def output(self):
-        return self.leader
+        return self.leader, self.downstream_region
 
 #           RevCom computations
 #################################################

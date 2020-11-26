@@ -10,7 +10,7 @@ class Pipeline:
     def __init__(self, result_folder_path, pickle_folder_path, file_path, list_ml_classifiers,
                  possible_differentiate_model, flag_possible_differential_model,
                  list_features, parameters, flags):
-        self.result_folder_path = result_folder_path + "/Result_" + file_path.split(".")[0]
+        self.result_folder_path = result_folder_path + "/" + file_path.split("/")[-1].split(".")[0]
         self.pickle_folder_path = pickle_folder_path
         self.file_path = file_path
         self.list_ml_classifiers = list_ml_classifiers

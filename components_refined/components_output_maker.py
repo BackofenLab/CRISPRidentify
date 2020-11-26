@@ -67,33 +67,11 @@ class OutputCrispr:
         self.dot_representation_web_server = crispr_candidate.dot_repr_web_server()
 
 
-def index_crispr_candidates(self):
-    for index, key in enumerate(sorted(self.dict_best.keys()), 1):
-        self.dict_crispr_indexes[key] = index
-
-    index = len(self.dict_best)
-    cur_index = index + 1
-
-    for key in sorted(self.dict_possible.keys()):
-        if key not in self.dict_crispr_indexes:
-            self.dict_crispr_indexes[key] = cur_index
-            cur_index += 1
-
-    for key in sorted(self.dict_possible_discarded.keys()):
-        if key not in self.dict_crispr_indexes:
-            self.dict_crispr_indexes[key] = cur_index
-            cur_index += 1
-
-    for key in sorted(self.dict_bad.keys()):
-        if key not in self.dict_crispr_indexes:
-            self.dict_crispr_indexes[key] = cur_index
-            cur_index += 1
-
-
 class SimpleOutputMaker:
-    def __init__(self, categories, result_path, list_features):
+    def __init__(self, categories, non_array_data, result_path, list_features):
         self.result_path = result_path
         self.categories = categories
+        self.non_array_data = non_array_data
         self.list_features = list_features
 
         self.dict_crispr_indexes = {}
@@ -122,45 +100,79 @@ class SimpleOutputMaker:
             if key not in self.dict_crispr_indexes:
                 self.dict_crispr_indexes[key] = cur_index
                 cur_index += 1
+
+        indexes_bona_fide = [self.dict_crispr_indexes[key] for key in sorted(self.categories[0].keys())]
+        indexes_alternative = [self.dict_crispr_indexes[key] for key in sorted(self.categories[1].keys())]
+        indexes_possible = [self.dict_crispr_indexes[key] for key in sorted(self.categories[2].keys())]
+        indexes_possible_discarded = [self.dict_crispr_indexes[key] for key in sorted(self.categories[3].keys())]
+        indexes_low_score = [self.dict_crispr_indexes[key] for key in sorted(self.categories[4].keys())]
+
+        self.list_indexes = [indexes_bona_fide, indexes_alternative, indexes_possible,
+                             indexes_possible_discarded, indexes_low_score]
         
     def _write_simple_txt_files(self):
         if not os.path.exists(self.result_path):
             os.makedirs(self.result_path)
 
-        f_bona_fide = open(self.result_path + '/Bona_Fide_Candidates.txt', 'w')
         f_alternative = open(self.result_path + '/Alternative_Candidates.txt', 'w')
         f_possible = open(self.result_path + '/Possible_Candidates.txt', 'w')
         f_possible_discarded = open(self.result_path + '/Possible_Discarded_Candidates.txt', 'w')
         f_low_score = open(self.result_path + '/Low_Score_Candidates.txt', 'w')
 
-        file_names = [f_bona_fide, f_alternative, f_possible, f_possible_discarded, f_low_score]
-        category_names = ["", "Alternative ", "Possible ", "Possible Discarded ", "Low score "]
+        file_names = [f_alternative, f_possible, f_possible_discarded, f_low_score]
+        category_names = ["Alternative", "Possible", "Possible Discarded", "Low score"]
 
-        for index, file_name, category_name in zip(range(5), file_names, category_names):
-            dictionary = self.categories[index]
-            for key in sorted(dictionary):
-                for candidate in dictionary[key]:
-                    score = candidate[0]
-                    crispr = candidate[1]
+        for category_index, category_name, file_name in zip(range(1, 5),
+                                                            category_names,
+                                                            file_names):
+
+            arrays = [el[1] for key in self.categories[category_index].keys()
+                      for el in self.categories[category_index][key]]
+            scores = [el[0] for key in self.categories[category_index].keys()
+                      for el in self.categories[category_index][key]]
+
+            features = [el[2] for key in self.categories[category_index].keys()
+                        for el in self.categories[category_index][key]]
+
+            array_indexes = self.list_indexes[category_index]
+
+            if array_indexes:
+                for index, array_index, array, score, feature_info in zip(range(len(arrays)), array_indexes,
+                                                                          arrays, scores, features):
+                    if category_name in self.non_array_data["Strand"]:
+                        strand = self.non_array_data["Strand"][category_name][index]
+                    else:
+                        strand = "Not Computed"
+
+                    if strand == "Reversed":
+                        crispr = RevComComputation(array).output()
+                    else:
+                        crispr = array
+
                     crispr_stats = crispr.compute_stats()
-                    file_name.write("{}CRISPR: {}, {}-{}, number of Repeats: {}, avg. length of Repeat: {}, avg length of Spacer: {}\n\n"
-                                 .format(category_name, self.dict_crispr_indexes[key], crispr_stats["start"],
-                                         crispr_stats["end"], crispr_stats["number_repeats"],
-                                         crispr_stats["avg_repeat"], crispr_stats["avg_spacer"]))
-    
+                    file_name.write(
+                        "{} CRISPR: {}, {}-{}, number of Repeats: {}, avg. length of Repeat: {}, avg length of Spacer: {}\n\n"
+                        .format(category_name, array_index, crispr_stats["start"],
+                                crispr_stats["end"], crispr_stats["number_repeats"],
+                                crispr_stats["avg_repeat"], crispr_stats["avg_spacer"]))
+
                     file_name.write(crispr.dot_repr())
-    
+
+                    file_name.write(f"\nStrand: {strand}\n\n")
+
                     file_name.write("\n")
                     list_reported_features = []
                     for feature_index, feature_list in enumerate(self.list_features):
-                        for feature, value in zip(feature_list, candidate[2][feature_index][0]):
+                        for feature, value in zip(feature_list, feature_info[feature_index][0]):
                             if feature not in list_reported_features:
                                 file_name.write("{}: {}\n".format(feature, value))
                                 list_reported_features.append(feature)
-    
+
                     file_name.write("\n")
-                    file_name.write("Certainty Score: {}\n\n".format(score))
-                file_name.write('\n{}\n\n'.format('=' * 100))
+                    file_name.write("Certainty Score: {}\n\n\n".format(score))
+
+                    file_name.write('\n{}\n\n'.format('=' * 100))
+
             file_name.close()
 
 
@@ -175,7 +187,7 @@ class SummaryOutputMaker:
         self._make_text_summary()
 
     def _make_text_summary(self):
-        result_path = self.result_path + '/Summary.txt'
+        result_path = self.result_path + '/Bona-Fide_Candidates.txt'
         list_crisprs = [list_info[0][1] for list_info in self.categories[0].values()]
         list_scores = [list_info[0][0] for list_info in self.categories[0].values()]
         list_feature_vectors = [list_info[0][2] for list_info in self.categories[0].values()]
@@ -196,7 +208,7 @@ class SummaryOutputMaker:
                                 f.write("{} [{}-{}]".format(cluster[2], cluster[0], cluster[1]))
                     f.write("\n\n")
 
-                strand = self.non_array_data["Strand"][index]
+                strand = self.non_array_data["Strand"]["Bona-fide"][index]
                 if strand == "Forward":
                     output_crispr = OutputCrispr(array)
                 else:
@@ -214,18 +226,23 @@ class SummaryOutputMaker:
                     .format(str(crispr_index), start, end, number_of_repeats,
                             avg_length_repeat, avg_length_spacer))
 
-                f.write(output_crispr.dot_representation_web_server)
+                f.write(output_crispr.dot_representation)
 
                 f.write("\n")
 
                 f.write("Leader region\n")
 
-                if strand == "Reverse":
-                    leader = self.non_array_data["Leader"][index]
-                else:
-                    leader = self.non_array_data["Leader_rev_com"][index]
+                leader = self.non_array_data["Leader"][index]
 
                 f.write(leader)
+
+                f.write("\n\n")
+
+                f.write("Downstream region\n")
+
+                downstream = self.non_array_data["Downstream"][index]
+
+                f.write(downstream)
 
                 f.write("\n\nStrand: {}\n\n".format(strand))
 
@@ -261,6 +278,79 @@ class SummaryOutputMaker:
                 f.write("\n\n")
 
 
+class SummaryMakerCSV:
+    def __init__(self, result_path, categories, non_array_data):
+        self.result_path = result_path
+        self.categories = categories
+        self.non_array_data = non_array_data
+
+        self.dict_crispr_indexes = {}
+
+        self._index_crispr_candidates()
+        self._write_csv_summary()
+
+    def _index_crispr_candidates(self):
+        for index, key in enumerate(sorted(self.categories[0].keys()), 1):
+            self.dict_crispr_indexes[key] = index
+
+        index = len(self.categories[0])
+        cur_index = index + 1
+
+        for key in sorted(self.categories[2].keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
+
+        for key in sorted(self.categories[3].keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
+
+        for key in sorted(self.categories[4].keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
+
+        indexes_bona_fide = [self.dict_crispr_indexes[key] for key in sorted(self.categories[0].keys())]
+        indexes_alternative = [self.dict_crispr_indexes[key] for key in sorted(self.categories[1].keys())]
+        indexes_possible = [self.dict_crispr_indexes[key] for key in sorted(self.categories[2].keys())]
+        self.list_indexes = [indexes_bona_fide, indexes_alternative, indexes_possible]
+
+    def _write_csv_summary(self):
+        result_csv_path = self.result_path + '/Summary.csv'
+        with open(result_csv_path, "w") as f:
+            f.write(",".join(["ID", "Start", "End", "Length", "Consensus repeat", "Repeat Length",
+                              "Average Spacer Length", "Number of spacers", "Strand", "Category"]))
+            f.write("\n")
+
+            for category_index, category in zip(range(3), ["Bona-fide", "Alternative", "Possible"]):
+                arrays = [el[1] for key in self.categories[category_index].keys()
+                          for el in self.categories[category_index][key]]
+                array_indexes = self.list_indexes[category_index]
+                for index, array_index, array in zip(range(len(arrays)), array_indexes, arrays):
+                    strand = self.non_array_data["Strand"][category][index]
+                    crispr = array
+                    crispr_stats = crispr.compute_stats()
+                    crispr_index = str(array_index)
+                    start = str(crispr_stats["start"])
+                    end = str(crispr_stats["end"])
+                    length = str(int(end) - int(start) + 1)
+                    if strand == "Forward":
+                        consensus_repeat = crispr.consensus
+                    else:
+                        consensus_repeat = rev_compliment_seq(crispr.consensus)
+                    repeat_length = str(crispr_stats["avg_repeat"])
+                    average_spacer_length = str(crispr_stats["avg_spacer"])
+                    number_of_spacers = str(crispr_stats["number_repeats"] - 1)
+
+                    string_to_write = ",".join([crispr_index, start, end, length,
+                                                consensus_repeat, repeat_length, average_spacer_length,
+                                                number_of_spacers, strand, category])
+
+                    f.write(string_to_write)
+                    f.write("\n")
+
+
 class PickleOutputMaker:
     def __init__(self, file_path, pickle_result_folder, parameters, categories,
                  non_array_data, header, list_feature_names):
@@ -283,3 +373,42 @@ class PickleOutputMaker:
         file_base = basename(self.file_name)
         acc_num = file_base.split(".")[0]
         pickle.dump(self.categories, open(self.pickle_result_folder + '/' + acc_num + '.pkl', "wb"))
+
+
+class JsonOutputMaker:
+    def __init__(self, file_path, json_result_folder, categories, non_array_data, list_feature_names):
+        self.file_path = file_path
+        self.json_result_folder = json_result_folder
+        self.categories = categories
+        self.non_array_data = non_array_data
+        self.list_feature_names = list_feature_names
+
+        self._write_json()
+
+    def _write_json(self):
+        category_names = ["Bona-fide", "Alternative", "Possible", "Possible Discarded", "Low score"]
+        for index, category in enumerate(category_names):
+            category = self.categories[index]
+            for info in category:
+                pass
+        dict_arrays = {}
+
+    @staticmethod
+    def crispr_candidate_to_dictionary(crispr_candidate):
+        list_repeat_starts = crispr_candidate.list_repeat_starts
+        list_repeats = crispr_candidate.list_repeat_starts
+        list_spacers = crispr_candidate.list_spacers
+        consensus_repeat = crispr_candidate.consensus
+        dot_representation = crispr_candidate.dot_repr()
+        dot_representation_web_server = crispr_candidate.dot_repr_web_server()
+
+        dict_crispr = {"list_repeat_starts": list_repeat_starts,
+                       "list_repeats": list_repeats,
+                       "list_spacers": list_spacers,
+                       "consensus_repeat": consensus_repeat,
+                       "dot_representation": dot_representation,
+                       "dot_representation_web_server": dot_representation_web_server}
+
+        return dict_crispr
+
+

@@ -135,7 +135,8 @@ class ArrayEvaluation:
                 best_possible_candidate = data_pre_possible[0]
                 possible_discarded = data_pre_possible[1:]
                 self.dict_possible[key] = [best_possible_candidate]
-                self.dict_possible_discarded[key] = possible_discarded
+                if possible_discarded:
+                    self.dict_possible_discarded[key] = possible_discarded
 
     def _split_into_categories_with_additional_classifier(self):
 

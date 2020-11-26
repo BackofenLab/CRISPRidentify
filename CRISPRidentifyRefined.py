@@ -17,8 +17,6 @@ from time import time
 import math
 
 
-
-
 parser = argparse.ArgumentParser(description='Run Identifier')
 parser.add_argument('--input_folder', nargs='*', type=str, default=None,
                     help='input folder (default: None)')
@@ -35,14 +33,14 @@ parser.add_argument('--additional_model', type=str, default=None,
 parser.add_argument('--result_folder', type=str, default="Results",
                     help='folder with the result (default: Results)')
 
-parser.add_argument('--pickle_report', type=str, default=None,
+parser.add_argument('--pickle_report', type=str, default='',
                     help='pickled report file (default: None)')
 
-parser.add_argument('--cas', type=bool, default=False,
-                    help='cas genes computation (default: False)')
+parser.add_argument('--cas', type=bool, default=True,
+                    help='cas genes computation (default: True)')
 
-parser.add_argument('--is_element', type=bool, default=False,
-                    help='is element computation (default: False)')
+parser.add_argument('--is_element', type=bool, default=True,
+                    help='is element computation (default: True)')
 
 parser.add_argument('--parallel', type=str, default=True,
                     help='parallel computations (default: True)')
@@ -70,9 +68,6 @@ parser.add_argument('--max_len_spacer', type=int, default=78,
 
 parser.add_argument('--min_repeats', type=int, default=3,
                     help='min number of repeats (default: 3)')
-
-parser.add_argument('--log_file', type=str, default=None,
-                    help='log file (default: None)')
 
 parser.add_argument('--enhancement_max_min', type=bool, default=True,
                     help='enhancement with filter (default: True)')
@@ -157,8 +152,6 @@ parameters = {
     "param_max_edit_distance": max_edit_distance_enhancement
 }
 
-log_file = args.log_file
-
 
 ALL_FEATURES = ['repeat_len', 'number_repeats', 'repeat_similarity',
                 'at_richness', 'avg_spacer_len', 'spacer_similarity',
@@ -199,7 +192,7 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
     for index, file in enumerate(chunk, 1):
         print("\n\n\n\t\t\t\tExecuting file {} out of {} ({})\n\n\n".format(index, len(chunk), file))
         pl = Pipeline(result_folder_path="{}/".format(result_folder),
-                      pickle_folder_path="{}/".format(pickle_folder),
+                      pickle_folder_path="{}".format(pickle_folder),
                       file_path=join(folder, file),
                       list_ml_classifiers=list_ml_classifiers,
                       possible_differentiate_model=possible_differentiate_model,
@@ -212,7 +205,7 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
 def run_over_one_file(file, result_folder, pickle_folder):
     print("\n\n\n\t\t\t\tExecuting file {}\n\n\n".format(file))
     pl = Pipeline(result_folder_path="{}/".format(result_folder),
-                  pickle_folder_path="{}/".format(pickle_folder),
+                  pickle_folder_path="{}".format(pickle_folder),
                   file_path=join(file),
                   list_ml_classifiers=list_ml_classifiers,
                   possible_differentiate_model=possible_differentiate_model,

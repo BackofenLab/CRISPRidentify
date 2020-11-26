@@ -757,9 +757,9 @@ class CrisprSimilarity(RepeatSpacersFeatures):
                 except OSError:
                     pass
             else:
-                self.similarity_score_spacers = 0
+                self.similarity_score_spacers = 1.0
         else:
-            self.similarity_score_spacers = 0
+            self.similarity_score_spacers = 1.0
 
     def output(self):
         return float(self.similarity_score_repeats), float(self.similarity_score_spacers)
@@ -833,9 +833,9 @@ class CrisprSimilarityNew(RepeatSpacersFeatures):
             if self.check_list(self.list_spacers):
                 self.similarity_score_spacers = self._compute_similarity_spacers()
             else:
-                self.similarity_score_spacers = 0
+                self.similarity_score_spacers = 1
         else:
-            self.similarity_score_spacers = 0
+            self.similarity_score_spacers = 1
 
     def output(self):
         return float(self.similarity_score_repeats), float(self.similarity_score_spacers)
