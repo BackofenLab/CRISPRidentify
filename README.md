@@ -1,7 +1,7 @@
 
 # CRISPRidentify: Identification of CRISPR arrays using machine learning approach
 
-CRISPRIdentify is a tool to search for CRISPR arrays which utilises 
+CRISPRidentify is a tool to search for CRISPR arrays which utilises 
 machine learning approach for distinguishing false candidates from true CRISPRS.
 CRISPRidentify, performs three steps: detection, feature extraction and 
 classification based on manually curated sets of positive and negative examples of CRISPR arrays.
