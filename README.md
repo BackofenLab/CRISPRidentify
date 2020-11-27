@@ -45,38 +45,61 @@ conda env create -f environment.yml
 ```
 
 ### Additional preparations
-HMM models for the hmmsearch tool might contain a lot of information.
-The Cas gene models exceed the file size limit provided by github.
-In order to include the Cas genes into the project we put that file as a zip archive.
+CRISPRidentify utilizes CRISPRcasIdentifier for the detection of the cas genes.
+If you are interested in cas gene result please install CRISPRcasIdentifier.
 
-Please unzip models_cas_genes.zip into the same folder.
+Please make sure that After you downloaded CRISPRcasIdentifier its relative path is:
+
+```
+tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py
+```
+
+You can find the tool and its description [here](https://github.com/BackofenLab/CRISPRcasIdentifier)
+
+You need to make two steps:
+
+Firstly, you need to download the tool:
+```
+wget https://github.com/BackofenLab/CRISPRcasIdentifier/archive/v1.1.0.tar.gz
+tar -xzf v1.1.0.tar.gz
+```
+Secondly, you need to download the models:
+
+Due to GitHub's file size constraints, authors made their HMM and ML models available in Google Drive. You can download them [here](https://drive.google.com/file/d/1YbTxkn9KuJP2D7U1-6kL1Yimu_4RqSl1/view?usp=sharing) and [here](https://drive.google.com/file/d/1Nc5o6QVB6QxMxpQjmLQcbwQwkRLk-thM/view?usp=sharing). Save both tar.gz files inside CRISPRcasIdentifier's directory.
 
 
-### Activation of environment
+### Activation of the environment
 
-Before running the tool one need to activate the corresponding environment.
+Before running CRISPRidentify one need to activate the corresponding environment.
 
 ```
 conda activate crispr_identify_env
 ```
 
-## Running the tool 
+## Running CRISPRidentify
 
-We suggest running the command line interface.
 We prepared the test folder which can be used for the test run.
 
-Example of running the tool over a folder of files:
+Example of running CRISPRidentify over a folder of files:
 
 ```
 python CRISPRidentify.py --input_folder TestInput
 ```
 
-Example of running the tool over a single multiline fasta input:
+Example of running CRISPRidentify over a single multiline fasta input:
 ```
 python CRISPRidentify.py --file TestInputMultiline/MultilineFasta.fasta
 ```
 
 ### Flags
+
+You can see the help by using the `-h` option
+
+```
+
+python CRISPRidentify.py -h
+
+```
 
 #### Mandatory flags
 The only mandatory parameter which has to be specifier is the input.
@@ -85,7 +108,7 @@ or the full path to a single fasta input file.
 
 ##### Input as a folder of fasta files
 
---input_folder "Input folder path"
+* `--input_folder <path_to_the_folder>`
 
 Specifies the mode where a folder with fasta files which will be used as the input for the tool. The CRISPR array search will be
 then conducted separately for each file in the corresponding input folder
@@ -96,7 +119,7 @@ python CRISPRidentify.py --input_folder TestInput
 
 ##### Input as a single file
 
---file "Input file path"
+* `--file <path_to_the_file>`
 
 Specifies the mode where a singe file is used as the tool input. The file might contain a single entry or multiple entries. 
 The CRISPR array search will be done for each entry independently.
@@ -112,7 +135,7 @@ python CRISPRidentify.py --file InputFile
 
 ##### Output
 
---result_folder "Result folder name"
+* `--result_folder [paht_to_the_result_folder]`
 
 Specifies the path and name of the folder with the output results. If not specified the results will appear in "Results" folder
 
@@ -123,7 +146,7 @@ For example:
 python CRISPRidentify.py --input_folder TestInput --result_folder Results
 ```
 
---pickle_report "Folder name for pickle report"
+* `--pickle_report [folder_to_put_pickle_results]`
 
 Specifies if found CRISPR arrays should be stored also as python objects. Turned off by default.
 
@@ -137,11 +160,11 @@ python CRISPRidentify.py --input_folder TestInput --pickle_report PickleReportFo
 
 ##### Classification parameters
 
---model "Model to use"
+* `--model [8/9/10/ALL]`
 
 
-Takes values: 8, 9, 10, ALL and specifies the classification model. The default value is ALL.
-If the value "ALL" is picked for the flag the certainty score will be calculated as average between all three available models.
+Takes values: 8, 9, 10, ALL and specifies the classification model. The default value is `ALL`.
+If the value `ALL` is picked for the flag the certainty score will be calculated as average between all three available models.
 
 
 For example:
@@ -157,7 +180,7 @@ python CRISPRidentify.py --input_folder TestInput --model ALL
 
 
 ##### Performance speed
---fast_run "Bool"
+* `--fast_run [True/False]`
 
 Specifies if the repeat set enhancement step should be skipped which drastically speeds up the process but might decrease the recall quality.
 Only matching pairs found with Vmatch will be used as repeat candidates. Automatically turns off filter approximation and start_end approximation (see enhancement_max_min and enhancement_start_end)
@@ -169,12 +192,12 @@ For example:
 python CRISPRidentify.py --input_folder TestInput --fast_run True
 ```
 
---enhancement_max_min "Bool"
+* `--enhancement_max_min [True/False]`
 
 Specifies if the filter approximation based on the max. and min. elements should be built
 The default value is True 
 
---enhancement_start_end
+* `--enhancement_start_end [True/False]`
 
 Specifies if the start/end omitting of the repeat candidates should be done to enrich the candidate set.
 The default value is True
@@ -189,24 +212,19 @@ python CRISPRidentify.py --input_folder TestInput --enhancement_max_min True --e
 ##### Candidate filtering criteria 
 
 
---min_len_rep  "int"
-
+* `--min_len_rep  [integer]`
 Specifies the minimum length of repeats in a CRISPR array. The default value: 21
 
---max_len_rep "int"
-
+* `--max_len_rep [integer]`
 Specifies the maximum length of repeats in a CRISPR array. The default value: 55
 
---min_len_spacer "int"
-
+* `--min_len_spacer [integer]`
 Specifies the minimum average length of spacers in a CRISPR array. The default value: 18
 
---max_len_spacer "int"
-
+* `--max_len_spacer [integer]`
 Specifies the maximum average length of spacers in a CRISPR array. The default value: 78
 
---min_repeats "int"
-
+* `--min_repeats [integer]`
 Specifies the minimum number of repeats in a CRISPR array. The default value: 3
 
 
@@ -219,12 +237,14 @@ python CRISPRidentify.py --input_folder TestInput --min_len_rep 25 --max_len_rep
 
 ##### Additional computations
 
+* `--strand[True/False]`
+Specifies if the array orientation should be predicted. The default value is True.
 
---cas "Bool"
+* `--cas [True/False]`
 
-Specifies if Cas genes should be predicted. The default value is False.
+Specifies if cas genes should be predicted. The default value is False.
 
---is_element "Bool"
+* `--is_element [True/False]`
 
 Specifies if IS-Elements should be predicted. The default value is False.
 
@@ -235,26 +255,43 @@ python CRISPRidentify.py --input_folder TestInput --cas True --is_element True
 
 ## Output files
 
-The output folder for each input entries consist of the following files.
+The output folder for each input entries consist of the following files:
 
-There are 5 files of text representations of the found CRISPR arrays what correspond to:
-Best candidates
+* Bona-Fide_Candidates. The file will contain the representation of the found CRISPR arrays complemented with the support information. 
+For each candidate the output will contain the values for extracted features as well as the certainty score of the used classifier.
+On top of that in the support information you can find the orientation for each array, leader and downstream regions, cas genes and IS-elements (if the corresponding flags were selected).
 
-Alternative candidates
+* Alternative_Candidates. In this file we demonstrate alternative representations of bona-fide arrays. These alternative representations also got a high score from the classifier but this score was lower than the corresponding score of the bona-fide representation.
+Alternative representation of a CRISPR array usually corresponds to a slightly longer/shorter repeat sequence but represents the same genomic region.
 
-Possible candidates
+The candidates with the certainty scores between 0.4 and 0.75 are stored in Possible_Candidates and Possible_Discarded_Candidates
 
-Discarded possible candidates 
+* Possible_Candidates. In this file the algorithm stores the candidate with the highest certainty score.
 
-Bad candidates
-
-Each text representation is complemented with a .bed format summary which specifies the CRISPR array start and end positions as well as the strand.
-
-Finally the output contains a .csv summary of all the identified CRISPR arrays.
+* Possible_Discarded.  Here are collected all the other representations 
 
 
+The algorithm also demonstrates CRISPR-looking structures which obtained certainty score lower than 0.4 from the classifier.
+
+* Low_score_candidates. The user can find these structures in this file.
 
 
+On top of that the algorithm builds a csv summary. 
+
+* Summary.csv
+
+Folloving information can be found in the summary:
+
+1. Array index
+2. Array start
+3. Array end
+4. Array length
+5. Consensus repeat
+6. Repeat length
+7. Average length of the spacers
+8. Number of spacers
+9. Array orientation
+10. Array category
 
 
 

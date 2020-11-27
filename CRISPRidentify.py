@@ -18,7 +18,7 @@ import math
 
 
 parser = argparse.ArgumentParser(description='Run Identifier')
-parser.add_argument('--input_folder', nargs='*', type=str, default=None,
+parser.add_argument('--input_folder', type=str, default=None,
                     help='input folder (default: None)')
 
 parser.add_argument('--file', type=str, default=None,
@@ -92,17 +92,7 @@ parser.add_argument('--max_edit_distance_enhanced', type=int, default=6,
 
 
 args = parser.parse_args()
-complete_path_folder_info = args.input_folder
-if complete_path_folder_info:
-    complete_path_folder = complete_path_folder_info[0]
-
-    if len(complete_path_folder_info) == 3:
-        chunk_number = int(complete_path_folder_info[1])
-        number_of_chunks = int(complete_path_folder_info[2])
-    else:
-        chunk_number = None
-        number_of_chunks = None
-
+complete_path_folder = args.input_folder
 complete_path_file = args.file
 folder_result = args.result_folder
 pickle_folder = args.pickle_report
@@ -253,9 +243,10 @@ if __name__ == "__main__":
             shutil.rmtree(folder_multifasta)
         else:
             run_over_one_file(complete_path_file, folder_result, pickle_folder)
+    elif complete_path_folder:
+        run_over_folder_of_files(complete_path_folder, folder_result, pickle_folder)
     else:
-        run_over_folder_of_files(complete_path_folder, folder_result, pickle_folder,
-                                 chunk_number=chunk_number, number_of_chunks=number_of_chunks)
+        print("No input was provided")
 
     end_time = time()
     print("Elapsed time: ", end_time-start_time)
