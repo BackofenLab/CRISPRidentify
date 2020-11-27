@@ -48,7 +48,7 @@ conda env create -f environment.yml
 CRISPRidentify utilizes CRISPRcasIdentifier for the detection of the cas genes.
 If you are interested in cas gene result please install CRISPRcasIdentifier.
 
-Please make sure that After you downloaded CRISPRcasIdentifier its relative path is:
+Please make sure that after you downloaded CRISPRcasIdentifier its relative path is:
 
 ```
 tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py
