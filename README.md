@@ -280,7 +280,7 @@ On top of that the algorithm builds a csv summary.
 
 * Summary.csv
 
-Folloving information can be found in the summary:
+Following information can be found in the summary:
 
 1. Array index
 2. Array start
