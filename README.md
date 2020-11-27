@@ -54,11 +54,11 @@ Please make sure that after you downloaded CRISPRcasIdentifier its relative path
 tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py
 ```
 
-You can find the tool and its description [here](https://github.com/BackofenLab/CRISPRcasIdentifier)
+You can find the CRISPRcasIdentifier tool and its description [here](https://github.com/BackofenLab/CRISPRcasIdentifier)
 
 You need to make two steps:
 
-Firstly, you need to download the tool:
+Firstly, you need to download the CRISPRcasIdentifier tool:
 ```
 wget https://github.com/BackofenLab/CRISPRcasIdentifier/archive/v1.1.0.tar.gz
 tar -xzf v1.1.0.tar.gz
@@ -110,7 +110,7 @@ or the full path to a single fasta input file.
 
 * `--input_folder <path_to_the_folder>`
 
-Specifies the mode where a folder with fasta files which will be used as the input for the tool. The CRISPR array search will be
+Specifies the mode where a folder with fasta files which will be used as the input for CRISPRidentify. The CRISPR array search will be
 then conducted separately for each file in the corresponding input folder
 
 ```
@@ -121,7 +121,7 @@ python CRISPRidentify.py --input_folder TestInput
 
 * `--file <path_to_the_file>`
 
-Specifies the mode where a singe file is used as the tool input. The file might contain a single entry or multiple entries. 
+Specifies the mode where a singe file is used as the input for the algorithm. The file might contain a single entry or multiple entries. 
 The CRISPR array search will be done for each entry independently.
 
 For example:

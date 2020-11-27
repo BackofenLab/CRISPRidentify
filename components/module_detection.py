@@ -60,7 +60,6 @@ class Detection:
         self.clusters = ie.output()
 
     def _extract_cluster_sequences(self):
-        #  TODO more careful split  (do not introduce overlap)
         for cluster in self.clusters:
             seq_start = max(0, cluster.begin - 100)
             seq_end = min(len(self.dna), cluster.end + 100)

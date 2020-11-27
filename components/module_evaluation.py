@@ -140,7 +140,6 @@ class ArrayEvaluation:
 
     def _split_into_categories_with_additional_classifier(self):
 
-        # Todo fix here
         for key, data in self.dict_scored_result_with_all_vectors.items():
             data_pre_possible = [candidate for candidate in data if 0.75 > candidate[0] >= 0.5]
             data_alternative = [candidate for candidate in data if candidate[0] >= 0.75]
