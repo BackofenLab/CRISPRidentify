@@ -521,8 +521,12 @@ class CrisprCandidate(object):
 
         string += "_" * 100 + "\n"
 
-        string += self.consensus + "" * (len(self.consensus_gaped) - len(self.consensus))
+        string += " " * max_length_start_index + self.consensus_gaped
         string += " " * (max_length_spacer + 2) + "   s:{} i:{} d:{}".format(g_s, g_i, g_d) + "\n"
+
+        string += "_" * 100 + "\n"
+
+        string += "consensus: " + self.consensus + "\n"
 
         return string
 
@@ -563,3 +567,13 @@ class CrisprCandidate(object):
 
     def __repr__(self):
         return self.dot_repr()
+
+    def __eq__(self, other):
+        if self.list_repeats == other.list_repeats:
+            if self.list_repeats_gaped == other.list_repeats_gaped:
+                if self.list_spacers == other.list_spacers:
+                    return True
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

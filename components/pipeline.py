@@ -8,7 +8,7 @@ from module_output_maker import OutputMaker
 
 class Pipeline:
     def __init__(self, result_folder_path, pickle_folder_path, file_path,
-                 list_ml_classifiers, list_features, parameters, flags):
+                 list_ml_classifiers, list_features, parameters, flags, flag_dev_mode):
         self.result_folder_path = result_folder_path + "/" + file_path.split("/")[-1].split(".")[0]
         self.pickle_folder_path = pickle_folder_path
         self.file_path = file_path
@@ -16,6 +16,7 @@ class Pipeline:
         self.list_features = [features.strip().split(".") for features in list_features]
         self.flags = flags
         self.parameters = parameters
+        self.flag_dev_mode = flag_dev_mode
 
         self.header = None
         self.dict_fuzzy_crisprs = {}
@@ -39,13 +40,15 @@ class Pipeline:
         print("1. Run initial array detection")
         detection = Detection(file_path=self.file_path,
                               flags=self.flags,
-                              parameters=self.parameters)
+                              parameters=self.parameters,
+                              flag_dev_mode=self.flag_dev_mode)
         self.dict_fuzzy_crisprs = detection.output()
 
     def _run_detection_refinement(self):
         print("2. Refine detected arrays")
         det_ref = DetectionRefinement(dict_fuzzy_crisprs=self.dict_fuzzy_crisprs,
-                                      parameters=self.parameters)
+                                      parameters=self.parameters,
+                                      flag_dev_mode=self.flag_dev_mode)
         self.dict_crispr_candidates = det_ref.output()
 
     def _run_evaluation(self):
@@ -53,21 +56,24 @@ class Pipeline:
         ae = ArrayEvaluation(dict_crispr_array_candidates=self.dict_crispr_candidates,
                              list_ml_classifiers=self.list_ml_classifiers,
                              list_features=self.list_features,
-                             parameters=self.parameters)
+                             parameters=self.parameters,
+                             flag_dev_mode=self.flag_dev_mode)
         self.categories = ae.output()
 
     def _results_enhancement(self):
         print("4. Enhance evaluated arrays")
         a_enh = EvaluatedArraysEnhancement(file_path=self.file_path,
                                            categories=self.categories,
-                                           parameters=self.parameters)
+                                           parameters=self.parameters,
+                                           flag_dev_mode=self.flag_dev_mode)
         self.categories = a_enh.output()
 
     def _run_non_crispr_computation(self):
         print("5. Complement arrays with additional info")
         nac = NonArrayComputations(file_path=self.file_path,
                                    categories=self.categories,
-                                   flags_non_arrays_computations=self.flags)
+                                   flags_non_arrays_computations=self.flags,
+                                   flag_dev_mode=self.flag_dev_mode)
         self.non_array_data = nac.output()
 
     def _write_output(self):

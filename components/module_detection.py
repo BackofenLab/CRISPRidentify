@@ -11,8 +11,7 @@ from components_detection import FuzzySearch
 
 
 class Detection:
-    def __init__(self, file_path, flags, parameters):
-
+    def __init__(self, file_path, flags, parameters, flag_dev_mode):
         self.file_path = file_path
         self.flags = flags
         self.parameters = parameters
@@ -22,6 +21,7 @@ class Detection:
         self.flag_enhancement_min_max = flags["flag_enhancement_min_max"]
         self.flag_enhancement_start_end = flags["flag_enhancement_start_end"]
         self.parameters = parameters
+        self.flag_dev_mode = flag_dev_mode
 
         self.clusters = []
         self.cluster_sequences = []

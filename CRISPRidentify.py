@@ -17,6 +17,8 @@ from time import time
 import math
 
 
+FLAG_DEVELOPER_MODE = False
+
 parser = argparse.ArgumentParser(description='Run Identifier')
 parser.add_argument('--input_folder', type=str, default=None,
                     help='input folder (default: None)')
@@ -192,7 +194,8 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
                       list_ml_classifiers=list_ml_classifiers,
                       list_features=feature_list,
                       parameters=parameters,
-                      flags=flags)
+                      flags=flags,
+                      flag_dev_mode=FLAG_DEVELOPER_MODE)
 
 
 def run_over_one_file(file, result_folder, pickle_folder):
@@ -203,7 +206,8 @@ def run_over_one_file(file, result_folder, pickle_folder):
                   list_ml_classifiers=list_ml_classifiers,
                   list_features=feature_list,
                   parameters=parameters,
-                  flags=flags)
+                  flags=flags,
+                  flag_dev_mode=FLAG_DEVELOPER_MODE)
 
 
 def multiline_fasta_check(file):

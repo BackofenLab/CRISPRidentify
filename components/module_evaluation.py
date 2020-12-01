@@ -7,11 +7,12 @@ from components_detection_refinement import AdvancedFuzzySearchFilter
 
 
 class ArrayEvaluation:
-    def __init__(self, dict_crispr_array_candidates, list_ml_classifiers, list_features, parameters):
+    def __init__(self, dict_crispr_array_candidates, list_ml_classifiers, list_features, parameters, flag_dev_mode):
         self.dict_crispr_array_candidates = dict_crispr_array_candidates
         self.list_ml_classifiers = list_ml_classifiers
         self.list_features = list_features
         self.parameters = parameters
+        self.flag_dev_mode = flag_dev_mode
 
         self.dict_scored_result = {}
         self.dict_scored_result_with_all_vectors = {}

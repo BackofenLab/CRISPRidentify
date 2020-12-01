@@ -4,10 +4,10 @@ from components_detection_refinement import CrisprCandidate
 
 
 class DetectionRefinement:
-    def __init__(self, dict_fuzzy_crisprs, parameters):
+    def __init__(self, dict_fuzzy_crisprs, parameters, flag_dev_mode):
         self.dict_fuzzy_crisprs = dict_fuzzy_crisprs
         self.parameters = parameters
-
+        self.flag_dev_mode = flag_dev_mode
         self.dict_fuzzy_crisprs_refined_st_end = {}
         self.dict_fuzzy_crisprs_fully_refined = {}
 

@@ -5,7 +5,8 @@ from components_output_maker import PickleOutputMaker
 
 
 class OutputMaker:
-    def __init__(self, file_path, parameters, result_path, pickle_result_path, categories, non_array_data, list_features, header):
+    def __init__(self, file_path, parameters, result_path, pickle_result_path,
+                 categories, non_array_data, list_features, header):
         self.file_path = file_path
         self.parameters = parameters
         self.result_path = result_path

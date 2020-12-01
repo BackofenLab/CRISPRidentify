@@ -316,39 +316,45 @@ class SummaryMakerCSV:
         self.list_indexes = [indexes_bona_fide, indexes_alternative, indexes_possible]
 
     def _write_csv_summary(self):
-        result_csv_path = self.result_path + '/Summary.csv'
-        with open(result_csv_path, "w") as f:
-            f.write(",".join(["ID", "Start", "End", "Length", "Consensus repeat", "Repeat Length",
-                              "Average Spacer Length", "Number of spacers", "Strand", "Category"]))
-            f.write("\n")
 
-            for category_index, category in zip(range(3), ["Bona-fide", "Alternative", "Possible"]):
-                arrays = [el[1] for key in self.categories[category_index].keys()
-                          for el in self.categories[category_index][key]]
-                array_indexes = self.list_indexes[category_index]
-                for index, array_index, array in zip(range(len(arrays)), array_indexes, arrays):
-                    strand = self.non_array_data["Strand"][category][index]
-                    crispr = array
-                    crispr_stats = crispr.compute_stats()
-                    crispr_index = str(array_index)
-                    start = str(crispr_stats["start"])
-                    end = str(crispr_stats["end"])
-                    length = str(int(end) - int(start) + 1)
-                    if strand in ("Forward", "Forward (Orientation was not computed)"):
-                        consensus_repeat = crispr.consensus
-                    else:
-                        consensus_repeat = rev_compliment_seq(crispr.consensus)
+        all_arrays = [el[1] for category_index in range(3) for key in self.categories[category_index].keys()
+                      for el in self.categories[category_index][key]]
 
-                    repeat_length = str(crispr_stats["avg_repeat"])
-                    average_spacer_length = str(crispr_stats["avg_spacer"])
-                    number_of_spacers = str(crispr_stats["number_repeats"] - 1)
+        if all_arrays:
 
-                    string_to_write = ",".join([crispr_index, start, end, length,
-                                                consensus_repeat, repeat_length, average_spacer_length,
-                                                number_of_spacers, strand, category])
+            result_csv_path = self.result_path + '/Summary.csv'
+            with open(result_csv_path, "w") as f:
+                f.write(",".join(["ID", "Start", "End", "Length", "Consensus repeat", "Repeat Length",
+                                  "Average Spacer Length", "Number of spacers", "Strand", "Category"]))
+                f.write("\n")
 
-                    f.write(string_to_write)
-                    f.write("\n")
+                for category_index, category in zip(range(3), ["Bona-fide", "Alternative", "Possible"]):
+                    arrays = [el[1] for key in self.categories[category_index].keys()
+                              for el in self.categories[category_index][key]]
+                    array_indexes = self.list_indexes[category_index]
+                    for index, array_index, array in zip(range(len(arrays)), array_indexes, arrays):
+                        strand = self.non_array_data["Strand"][category][index]
+                        crispr = array
+                        crispr_stats = crispr.compute_stats()
+                        crispr_index = str(array_index)
+                        start = str(crispr_stats["start"])
+                        end = str(crispr_stats["end"])
+                        length = str(int(end) - int(start) + 1)
+                        if strand in ("Forward", "Forward (Orientation was not computed)"):
+                            consensus_repeat = crispr.consensus
+                        else:
+                            consensus_repeat = rev_compliment_seq(crispr.consensus)
+
+                        repeat_length = str(crispr_stats["avg_repeat"])
+                        average_spacer_length = str(crispr_stats["avg_spacer"])
+                        number_of_spacers = str(crispr_stats["number_repeats"] - 1)
+
+                        string_to_write = ",".join([crispr_index, start, end, length,
+                                                    consensus_repeat, repeat_length, average_spacer_length,
+                                                    number_of_spacers, strand, category])
+
+                        f.write(string_to_write)
+                        f.write("\n")
 
 
 class PickleOutputMaker:

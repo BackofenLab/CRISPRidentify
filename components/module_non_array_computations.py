@@ -8,10 +8,11 @@ from components_non_array_computations import RevComComputation
 
 
 class NonArrayComputations:
-    def __init__(self, file_path, categories, flags_non_arrays_computations):
+    def __init__(self, file_path, categories, flags_non_arrays_computations, flag_dev_mode):
         self.file_path = file_path
         self.categories = categories
         self.flags_non_arrays_computations = flags_non_arrays_computations
+        self.flag_dev_mode=flag_dev_mode
 
         self.list_of_crisprs_bona_fide = [self.categories[0][key][0][1] for key in sorted(self.categories[0].keys())]
         self.list_of_crisprs_alternative = [el[1] for key in self.categories[1].keys()

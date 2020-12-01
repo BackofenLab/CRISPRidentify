@@ -1,13 +1,15 @@
+from os.path import basename
 from components_evaluated_arrays_enhancement import IterativeDegeneratedSearch
 from components_evaluated_arrays_enhancement import create_boundaries_for_intervals
 from components_evaluated_arrays_enhancement import ArrayRefinerInsertionsDeletions
 
 
 class EvaluatedArraysEnhancement:
-    def __init__(self, file_path, categories, parameters):
+    def __init__(self, file_path, categories, parameters, flag_dev_mode):
         self.file_path = file_path
         self.categories = categories
         self.parameters = parameters
+        self.flag_dev_mode = flag_dev_mode
 
         self.bona_fide_arrays = categories[0]
         self.possible_arrays = categories[2]
@@ -43,21 +45,43 @@ class EvaluatedArraysEnhancement:
             list_repeats_starts = array.list_repeat_starts
             list_spacers = array.list_spacers
 
-            ids = IterativeDegeneratedSearch(full_dna=self.dna,
-                                             repeat_seq_candidate=consensus,
-                                             spacer_margin=self.parameters["param_spacer_margin_degenerated_search"],
-                                             repeat_seq_candidate_gaped=None,
-                                             list_repeats_starts=list_repeats_starts,
-                                             list_repeats=list_repeats,
-                                             list_spacers=list_spacers,
-                                             start_flanking_region_left=boundary[0],
-                                             end_flanking_region_right=boundary[1],
-                                             allowed_max_editing_distance=self.parameters["param_max_edit_distance"],
-                                             iterative_size_flanking_region=150,
-                                             prevent_long_spacers=True,
-                                             attempt_to_improve_initial_array=True)
+            try:
+                ids = IterativeDegeneratedSearch(full_dna=self.dna,
+                                                 repeat_seq_candidate=consensus,
+                                                 spacer_margin=self.parameters["param_spacer_margin_degenerated_search"],
+                                                 repeat_seq_candidate_gaped=None,
+                                                 list_repeats_starts=list_repeats_starts,
+                                                 list_repeats=list_repeats,
+                                                 list_spacers=list_spacers,
+                                                 start_flanking_region_left=boundary[0],
+                                                 end_flanking_region_right=boundary[1],
+                                                 allowed_max_editing_distance=self.parameters["param_max_edit_distance"],
+                                                 iterative_size_flanking_region=150,
+                                                 prevent_long_spacers=True,
+                                                 attempt_to_improve_initial_array=True)
 
-            new_crispr_candidate = ids.output()
+                new_crispr_candidate = ids.output()
+
+                if self.flag_dev_mode:
+                    if array != new_crispr_candidate:
+                        with open("log.txt", "a") as f:
+                            acc_num = basename(self.file_path).split(".")[0]
+                            f.write(f"Iteractive degenerated search {acc_num}\n")
+                            f.write(array.dot_repr())
+                            f.write("\n\n")
+                            f.write(new_crispr_candidate.dot_repr())
+                            f.write("\n\n")
+
+            except Exception:
+                new_crispr_candidate = array
+
+                if self.flag_dev_mode:
+                    with open("log_error.txt", "a") as f:
+                        acc_num = basename(self.file_path).split(".")[0]
+                        f.write(f"Iteractive degenerated search error {acc_num}\n")
+                        f.write(array.dot_repr())
+                        f.write("\n\n")
+
             self.bona_fide_arrays[interval][0][1] = new_crispr_candidate
 
     def _refine_nucleotides_repeat_spacer(self):
@@ -68,8 +92,30 @@ class EvaluatedArraysEnhancement:
             arrays.append(list_data[0][1])
 
         for interval, array in zip(intervals, arrays):
-            arid = ArrayRefinerInsertionsDeletions(array)
-            new_crispr_candidate = arid.output()
+            try:
+                arid = ArrayRefinerInsertionsDeletions(array)
+                new_crispr_candidate = arid.output()
+
+                if self.flag_dev_mode:
+                    if array != new_crispr_candidate:
+                        with open("log.txt", "a") as f:
+                            acc_num = basename(self.file_path).split(".")[0]
+                            f.write(f"Array refinement {acc_num}\n")
+                            f.write(array.dot_repr())
+                            f.write("\n\n")
+                            f.write(new_crispr_candidate.dot_repr())
+                            f.write("\n\n")
+
+            except Exception:
+                new_crispr_candidate = array
+
+                if self.flag_dev_mode:
+                    with open("log_error.txt", "a") as f:
+                        acc_num = basename(self.file_path).split(".")[0]
+                        f.write(f"Array refinement error {acc_num}\n")
+                        f.write(array.dot_repr())
+                        f.write("\n\n")
+
             self.bona_fide_arrays[interval][0][1] = new_crispr_candidate
 
     def output(self):
