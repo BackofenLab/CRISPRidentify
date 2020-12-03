@@ -48,7 +48,6 @@ class Detection:
 
         cm = ClusterMaker(list_repeats_from_vmatch, self.dna)
         self.clusters = cm.output()
-        #print("clusters", self.clusters)
 
         fa = FilterApproximationClusters(self.clusters)
         self.clusters = fa.output()

@@ -37,7 +37,7 @@ class RevComComputation:
 
         list_repeat_starts_rev_com = list_repeat_starts[::-1]
 
-        list_spacers_rev_com = [spacer for spacer in list_spacers][::-1]
+        list_spacers_rev_com = [rev_compliment_seq(spacer) for spacer in list_spacers][::-1]
 
         self.rev_com_candidate = CrisprCandidate(list_repeats=list_repeats_rev_com,
                                                  list_repeats_gaped=list_repeats_gaped_rev_com,

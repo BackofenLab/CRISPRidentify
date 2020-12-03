@@ -509,7 +509,7 @@ class LeaderSeqSearch:
         else:
             start = first_index - 201
             end = first_index - 1
-            self.downstream_region = self.full_dna[start:end + 1]
+            self.downstream_region = self.full_dna[start:end]
             self.leader = self.full_dna[array_end + last_repeat_len:array_end + last_repeat_len + 200]
 
             self.downstream_region = rev_compliment_seq(self.downstream_region)

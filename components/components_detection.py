@@ -149,6 +149,12 @@ class ClusterCandidate:
 
         self.list_clust_dif_rep_seq = list(set([r.sequence for r in self.list_cluster_repeats]))
 
+    def __repr__(self):
+        string = f"Cluster {self.begin} - {self.end}: \n"
+        for s in self.list_clust_dif_rep_seq:
+            string += str(s) + "\n"
+        return string
+
 
 class CandidateMerger:
     def __init__(self, dna, list_clusters):
@@ -192,10 +198,18 @@ class CandidateMerger:
     def mergeable(dna, first_cluster, second_cluster):
         first_cluster_end = first_cluster.end
         second_cluster_begin = second_cluster.begin
-        dna_interval = dna[int(first_cluster_end)-1: int(second_cluster_begin)+1]
-        main_repeat_to_check = second_cluster.list_cluster_repeats[0].sequence
-        main_repeat_to_check = main_repeat_to_check[3:-3]
-        if len(dna_interval) < 500:
+        dna_interval = dna[int(first_cluster_end) - 1: int(second_cluster_begin) + 1]
+        if second_cluster_begin < first_cluster_end:
+            return True
+        elif len(dna_interval) < 100:
+            candidate_first = set(first_cluster.list_clust_dif_rep_seq)
+            candidate_second = set(second_cluster.list_clust_dif_rep_seq)
+            overlap_candidates = candidate_first.intersection(candidate_second)
+            if overlap_candidates:
+                return True
+        elif len(dna_interval) < 500:
+            main_repeat_to_check = second_cluster.list_cluster_repeats[0].sequence
+            main_repeat_to_check = main_repeat_to_check[3:-3]
             if main_repeat_to_check:
                 occurrences = dna_interval.count(main_repeat_to_check)
                 if occurrences >= len(dna_interval) / 160:
