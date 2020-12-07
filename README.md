@@ -45,6 +45,18 @@ conda env create -f environment.yml
 ```
 
 ### Additional preparations
+CRISPRidentify is complemented with executable files for many tools which are within the pipeline.
+If you want to be sure that all ot them can be executed on your system. In order to do so just simply run the help command for each of them:
+
+```
+tools/fasta/fasta36 -h
+tools/blasting/blastn -h
+tools/clustalOmega/clustalo -h
+tools/hmm_search/hmmsearch -h
+tools/prodigal/prodigal -h
+tools/rna_fold/RNAfold -h
+``` 
+
 CRISPRidentify utilizes CRISPRcasIdentifier for the detection of the cas genes.
 If you are interested in cas gene result please install CRISPRcasIdentifier.
 
@@ -292,6 +304,11 @@ Following information can be found in the summary:
 8. Number of spacers
 9. Array orientation
 10. Array category
+
+## Improving CRISPRidentify
+
+We are constantly working on the improvements of CRISPRidentify. If you found a bug or incorrect/missing CRISPR array representation please submit via github issue interface.
+
 
 
 
