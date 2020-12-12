@@ -296,8 +296,6 @@ class AdvancedFuzzySearchFilter:
             return
         if not self._filter_max_avg_spacer_length(candidate):
             return
-        if not self._filter_by_min_avg_spacer(candidate):
-            return
         if not self._filter_min_number_repeats(candidate):
             return
         return candidate

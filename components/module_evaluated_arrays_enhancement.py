@@ -2,6 +2,7 @@ from os.path import basename
 from components_evaluated_arrays_enhancement import IterativeDegeneratedSearch
 from components_evaluated_arrays_enhancement import create_boundaries_for_intervals
 from components_evaluated_arrays_enhancement import ArrayRefinerInsertionsDeletions
+from components_detection_refinement import AdvancedFuzzySearchFilter
 
 
 class EvaluatedArraysEnhancement:
@@ -19,6 +20,7 @@ class EvaluatedArraysEnhancement:
         self._get_complete_dna()
         self._search_missed_or_degenerated_repeats()
         self._refine_nucleotides_repeat_spacer()
+        self._filter_enhanced()
 
     def _get_complete_dna(self):
         with open(self.file_path, 'r') as f:
@@ -118,6 +120,44 @@ class EvaluatedArraysEnhancement:
 
             self.bona_fide_arrays[interval][0][1] = new_crispr_candidate
 
-    def output(self):
         self.categories[0] = self.bona_fide_arrays
+
+    def _filter_enhanced(self):
+        self.param_min_avg_repeat_length = self.parameters["param_min_avg_repeat_length"]
+        self.param_max_avg_repeat_length = self.parameters["param_max_avg_repeat_length"]
+        self.param_min_avg_spacer_length = self.parameters["param_min_avg_spacer_length"]
+        self.param_max_avg_spacer_length = self.parameters["param_max_avg_spacer_length"]
+        self.param_min_repeats = self.parameters["param_min_repeats"]
+        self.param_max_identical_spacers = self.parameters["param_max_identical_spacers"]
+        self.param_max_identical_cluster_spacers = self.parameters["param_max_identical_cluster_spacers"]
+
+        afsf = AdvancedFuzzySearchFilter(min_column_dominance_repeat=0.6,
+                                         max_spacer_length=140, max_column_dominance_spacer=0.8,
+                                         max_allowed_consecutive_spacers=self.param_max_identical_cluster_spacers,
+                                         max_allowed_same_spacers=self.param_max_identical_spacers,
+                                         max_inconsistent_columns=5,
+                                         min_avg_repeat_length=self.param_min_avg_repeat_length,
+                                         max_avg_repeat_length=self.param_max_avg_repeat_length,
+                                         min_avg_spacer_length=self.param_min_avg_spacer_length,
+                                         max_avg_spacer_length=self.param_max_avg_spacer_length,
+                                         min_repeats=self.param_min_repeats)
+
+        bona_fide_not_filtered = self.categories[0]
+        low_score = self.categories[4]
+        bona_fide_filtered = {}
+
+        for key, value in bona_fide_not_filtered.items():
+            crispr = value[0][1]
+            if not afsf(crispr):
+                if key in low_score:
+                    low_score[key].append(value[0])
+                else:
+                    low_score[key] = value
+            else:
+                bona_fide_filtered[key] = value
+
+        self.categories[0] = bona_fide_filtered
+        self.categories[4] = low_score
+
+    def output(self):
         return self.categories
