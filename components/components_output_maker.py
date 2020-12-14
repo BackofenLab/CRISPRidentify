@@ -416,5 +416,3 @@ class JsonOutputMaker:
                        "dot_representation_web_server": dot_representation_web_server}
 
         return dict_crispr
-
-

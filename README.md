@@ -114,7 +114,7 @@ python CRISPRidentify.py -h
 ```
 
 #### Mandatory flags
-The only mandatory parameter which has to be specifier is the input.
+The only mandatory parameter which has to be specified is the input.
 Our approach has two options to handle the input. User has to specify either the path to the folder with the input fasta files
 or the full path to a single fasta input file.
 
@@ -123,7 +123,7 @@ or the full path to a single fasta input file.
 * `--input_folder <path_to_the_folder>`
 
 Specifies the mode where a folder with fasta files which will be used as the input for CRISPRidentify. The CRISPR array search will be
-then conducted separately for each file in the corresponding input folder
+then conducted separately for each file in the corresponding input folder.
 
 ```
 python CRISPRidentify.py --input_folder TestInput
@@ -225,18 +225,23 @@ python CRISPRidentify.py --input_folder TestInput --enhancement_max_min True --e
 
 
 * `--min_len_rep  [integer]`
+
 Specifies the minimum length of repeats in a CRISPR array. The default value: 21
 
 * `--max_len_rep [integer]`
+
 Specifies the maximum length of repeats in a CRISPR array. The default value: 55
 
 * `--min_len_spacer [integer]`
+
 Specifies the minimum average length of spacers in a CRISPR array. The default value: 18
 
 * `--max_len_spacer [integer]`
+
 Specifies the maximum average length of spacers in a CRISPR array. The default value: 78
 
 * `--min_repeats [integer]`
+
 Specifies the minimum number of repeats in a CRISPR array. The default value: 3
 
 
@@ -246,10 +251,25 @@ For example:
 python CRISPRidentify.py --input_folder TestInput --min_len_rep 25 --max_len_rep 50 --min_repeats 2 
 ```
 
+#####Candidate Enhancement 
+
+* `--degenerated' [True/False]`
+
+Allows search for degenerated repeat candidates on both ends of the CRISPR array candidate. The default value: True
+
+* `--margin_degenerated [int]`
+
+Specifies the maximum length difference between a new spacer sequence (obtained with the search of degenerated repeats) and the average value of spacer length in the array. The default value: 30
+
+* `--max_edit_distance_enhanced [int]`
+
+Specifies the number of editing operations for candidate enhancement. The default value: 6
+
 
 ##### Additional computations
 
 * `--strand[True/False]`
+
 Specifies if the array orientation should be predicted. The default value is True.
 
 * `--cas [True/False]`
