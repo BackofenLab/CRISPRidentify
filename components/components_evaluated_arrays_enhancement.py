@@ -389,6 +389,7 @@ class DotRepresentationMaker:
             gaped_consensus, new_repeat_representation = search_pair_handler(repeat, self.consensus,
                                                                              repeat_relative_errors)
 
+
             block = BlockRepeats(gaped_consensus, [new_repeat_representation])
             blocks.append(block)
 
@@ -555,6 +556,10 @@ def search_pair_handler(search_result, consensus_seq, relative_errors):
     insertions = apply_deletions_to_insertions(insertions_orig, deletions)
 
     insertions = set(insertions)
+    #deletions = [d if d >= 0 else 0 for d in deletions] # normal solution
+    if deletions:
+        if min(deletions) < 0:
+            deletions = [d - min(deletions) for d in deletions]
     deletions = set(deletions)
     same_index = insertions.intersection(deletions)
 
@@ -655,12 +660,52 @@ class ArrayRefinerInsertions:
     def _search_potential_problems(self):
         len_spacers = [len(s) for s in self.original_spacers]
         for index, len_spacer in enumerate(len_spacers):
-            if index > 1:
-                if index < (len(len_spacers) - 3):
-                    window_spacers_len = len_spacers[index - 2:index] + len_spacers[index + 1:index + 3]
+
+            if index == 0:
+                if len(len_spacers) > 2:
+                    window_spacers_len = len_spacers[1:3]
                     if len(set(window_spacers_len)) == 1:
                         if window_spacers_len[0] != len_spacer:
                             self.problematic_spacers_indexes.append(index)
+                else:
+                    self.problematic_spacers_indexes.append(index)
+
+            if index == 1:
+                if len(len_spacers) > 2:
+                    window_spacers_len = len_spacers[0:1] + len_spacers[2:3]
+                    if len(set(window_spacers_len)) == 1:
+                        if window_spacers_len[0] != len_spacer:
+                            self.problematic_spacers_indexes.append(index)
+                else:
+                    self.problematic_spacers_indexes.append(index)
+
+            if index > 1:
+                if index not in self.problematic_spacers_indexes:
+                    if index < (len(len_spacers) - 2):
+                        window_spacers_len = len_spacers[index - 2:index] + len_spacers[index + 1:index + 3]
+                        if len(set(window_spacers_len)) == 1:
+                            if window_spacers_len[0] != len_spacer:
+                                self.problematic_spacers_indexes.append(index)
+
+            if index == (len(len_spacers) - 2):
+                if index not in self.problematic_spacers_indexes:
+                    if len(len_spacers) > 2:
+                        window_spacers_len = len_spacers[len(len_spacers) - 3:len(len_spacers) - 2] + [len_spacers[-1]]
+                        if len(set(window_spacers_len)) == 1:
+                            if window_spacers_len[0] != len_spacer:
+                                self.problematic_spacers_indexes.append(index)
+                    else:
+                        self.problematic_spacers_indexes.append(index)
+
+            if index == (len(len_spacers) - 1):
+                if index not in self.problematic_spacers_indexes:
+                    if len(len_spacers) > 2:
+                        window_spacers_len = len_spacers[len(len_spacers) - 2:len(len_spacers) - 1]
+                        if len(set(window_spacers_len)) == 1:
+                            if window_spacers_len[0] != len_spacer:
+                                self.problematic_spacers_indexes.append(index)
+                    else:
+                        self.problematic_spacers_indexes.append(index)
 
     def _refine_insertions(self):
         for spacer_index in self.problematic_spacers_indexes:

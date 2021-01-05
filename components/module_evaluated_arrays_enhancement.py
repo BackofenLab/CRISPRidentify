@@ -13,6 +13,7 @@ class EvaluatedArraysEnhancement:
         self.flag_dev_mode = flag_dev_mode
 
         self.bona_fide_arrays = categories[0]
+        self.alternative_arrays = categories[1]
         self.possible_arrays = categories[2]
 
         self.dict_arrays_into_categories_enhanced = {}
@@ -32,95 +33,92 @@ class EvaluatedArraysEnhancement:
         self.dna = self.dna.upper()
 
     def _search_missed_or_degenerated_repeats(self):
-        intervals = []
-        arrays = []
-        for interval, list_data in self.bona_fide_arrays.items():
-            intervals.append(interval)
-            arrays.append(list_data[0][1])
+        for category in [self.bona_fide_arrays,self.alternative_arrays, self.possible_arrays]:
+            intervals = []
+            arrays_for_intervals = []
 
-        boundaries = create_boundaries_for_intervals(intervals, 500)
+            for interval, list_data in category.items():
+                intervals.append(interval)
+                arrays_for_intervals.append([el[1] for el in list_data])
 
-        for interval, array, boundary in zip(intervals, arrays, boundaries):
+            boundaries = create_boundaries_for_intervals(intervals, 500)
 
-            consensus = array.consensus
-            list_repeats = array.list_repeats
-            list_repeats_starts = array.list_repeat_starts
-            list_spacers = array.list_spacers
+            for interval, arrays_in_interval, boundary in zip(intervals, arrays_for_intervals, boundaries):
+                for array_index, array in enumerate(arrays_in_interval):
+                    consensus = array.consensus
+                    list_repeats = array.list_repeats
+                    list_repeats_starts = array.list_repeat_starts
+                    list_spacers = array.list_spacers
 
-            try:
-                ids = IterativeDegeneratedSearch(full_dna=self.dna,
-                                                 repeat_seq_candidate=consensus,
-                                                 spacer_margin=self.parameters["param_spacer_margin_degenerated_search"],
-                                                 repeat_seq_candidate_gaped=None,
-                                                 list_repeats_starts=list_repeats_starts,
-                                                 list_repeats=list_repeats,
-                                                 list_spacers=list_spacers,
-                                                 start_flanking_region_left=boundary[0],
-                                                 end_flanking_region_right=boundary[1],
-                                                 allowed_max_editing_distance=self.parameters["param_max_edit_distance"],
-                                                 iterative_size_flanking_region=150,
-                                                 prevent_long_spacers=True,
-                                                 attempt_to_improve_initial_array=True)
 
-                new_crispr_candidate = ids.output()
+                    ids = IterativeDegeneratedSearch(full_dna=self.dna,
+                                                     repeat_seq_candidate=consensus,
+                                                     spacer_margin=self.parameters["param_spacer_margin_degenerated_search"],
+                                                     repeat_seq_candidate_gaped=None,
+                                                     list_repeats_starts=list_repeats_starts,
+                                                     list_repeats=list_repeats,
+                                                     list_spacers=list_spacers,
+                                                     start_flanking_region_left=boundary[0],
+                                                     end_flanking_region_right=boundary[1],
+                                                     allowed_max_editing_distance=self.parameters["param_max_edit_distance"],
+                                                     iterative_size_flanking_region=150,
+                                                     prevent_long_spacers=True,
+                                                     attempt_to_improve_initial_array=True)
 
-                if self.flag_dev_mode:
-                    if array != new_crispr_candidate:
-                        with open("log.txt", "a") as f:
-                            acc_num = basename(self.file_path).split(".")[0]
-                            f.write(f"Iteractive degenerated search {acc_num}\n")
-                            f.write(array.dot_repr())
-                            f.write("\n\n")
-                            f.write(new_crispr_candidate.dot_repr())
-                            f.write("\n\n")
+                    new_crispr_candidate = ids.output()
 
-            except Exception:
-                new_crispr_candidate = array
+                    if self.flag_dev_mode:
+                        if array != new_crispr_candidate:
+                            with open("log.txt", "a") as f:
+                                acc_num = basename(self.file_path).split(".")[0]
+                                f.write(f"Iteractive degenerated search {acc_num}\n")
+                                f.write(array.dot_repr())
+                                f.write("\n\n")
+                                f.write(new_crispr_candidate.dot_repr())
+                                f.write("\n\n")
 
-                if self.flag_dev_mode:
-                    with open("log_error.txt", "a") as f:
-                        acc_num = basename(self.file_path).split(".")[0]
-                        f.write(f"Iteractive degenerated search error {acc_num}\n")
-                        f.write(array.dot_repr())
-                        f.write("\n\n")
+                    """except Exception:
+                        new_crispr_candidate = array
 
-            self.bona_fide_arrays[interval][0][1] = new_crispr_candidate
+                        if self.flag_dev_mode:
+                            with open("log_error.txt", "a") as f:
+                                acc_num = basename(self.file_path).split(".")[0]
+                                f.write(f"Iteractive degenerated search error {acc_num}\n")
+                                f.write(array.dot_repr())
+                                f.write("\n\n")"""
+
+                    category[interval][array_index][1] = new_crispr_candidate
 
     def _refine_nucleotides_repeat_spacer(self):
-        intervals = []
-        arrays = []
-        for interval, list_data in self.bona_fide_arrays.items():
-            intervals.append(interval)
-            arrays.append(list_data[0][1])
+        for category in [self.bona_fide_arrays, self.alternative_arrays, self.possible_arrays]:
+            for interval, list_data in category.items():
+                arrays = [el[1] for el in list_data]
+                for array_index, array in enumerate(arrays):
+                    try:
+                        arid = ArrayRefinerInsertionsDeletions(array)
+                        new_crispr_candidate = arid.output()
 
-        for interval, array in zip(intervals, arrays):
-            try:
-                arid = ArrayRefinerInsertionsDeletions(array)
-                new_crispr_candidate = arid.output()
+                        if self.flag_dev_mode:
+                            if array != new_crispr_candidate:
+                                with open("log.txt", "a") as f:
+                                    acc_num = basename(self.file_path).split(".")[0]
+                                    f.write(f"Array refinement {acc_num}\n")
+                                    f.write(array.dot_repr())
+                                    f.write("\n\n")
+                                    f.write(new_crispr_candidate.dot_repr())
+                                    f.write("\n\n")
 
-                if self.flag_dev_mode:
-                    if array != new_crispr_candidate:
-                        with open("log.txt", "a") as f:
-                            acc_num = basename(self.file_path).split(".")[0]
-                            f.write(f"Array refinement {acc_num}\n")
-                            f.write(array.dot_repr())
-                            f.write("\n\n")
-                            f.write(new_crispr_candidate.dot_repr())
-                            f.write("\n\n")
+                    except Exception:
+                        new_crispr_candidate = array
 
-            except Exception:
-                new_crispr_candidate = array
+                        if self.flag_dev_mode:
+                            with open("log_error.txt", "a") as f:
+                                acc_num = basename(self.file_path).split(".")[0]
+                                f.write(f"Array refinement error {acc_num}\n")
+                                f.write(array.dot_repr())
+                                f.write("\n\n")
 
-                if self.flag_dev_mode:
-                    with open("log_error.txt", "a") as f:
-                        acc_num = basename(self.file_path).split(".")[0]
-                        f.write(f"Array refinement error {acc_num}\n")
-                        f.write(array.dot_repr())
-                        f.write("\n\n")
-
-            self.bona_fide_arrays[interval][0][1] = new_crispr_candidate
-
-        self.categories[0] = self.bona_fide_arrays
+                    category[interval][array_index][1] = new_crispr_candidate
 
     def _filter_enhanced(self):
         self.param_min_avg_repeat_length = self.parameters["param_min_avg_repeat_length"]
@@ -143,20 +141,33 @@ class EvaluatedArraysEnhancement:
                                          min_repeats=self.param_min_repeats)
 
         bona_fide_not_filtered = self.categories[0]
+        alternative_not_filtered = self.categories[1]
+        possible_not_filtered = self.categories[2]
         low_score = self.categories[4]
-        bona_fide_filtered = {}
 
-        for key, value in bona_fide_not_filtered.items():
-            crispr = value[0][1]
-            if not afsf(crispr):
-                if key in low_score:
-                    low_score[key].append(value[0])
-                else:
-                    low_score[key] = value
-            else:
-                bona_fide_filtered[key] = value
+        bona_fide_filtered = {}
+        alternative_filtered = {}
+        possible_filtered = {}
+
+        for not_filtered_category, filtered_category in zip([bona_fide_not_filtered, alternative_not_filtered, possible_not_filtered],
+                                                            [bona_fide_filtered, alternative_filtered, possible_filtered]):
+            for key, value in not_filtered_category.items():
+                for crispr_tuple in value:
+                    crispr = crispr_tuple[1]
+                    if not afsf(crispr):
+                        if key in low_score:
+                            low_score[key].append(crispr_tuple)
+                        else:
+                            low_score[key] = [crispr_tuple]
+                    else:
+                        if key not in filtered_category:
+                            filtered_category[key] = [crispr_tuple]
+                        else:
+                            filtered_category[key].append(crispr_tuple)
 
         self.categories[0] = bona_fide_filtered
+        self.categories[1] = alternative_filtered
+        self.categories[2] = possible_filtered
         self.categories[4] = low_score
 
     def output(self):

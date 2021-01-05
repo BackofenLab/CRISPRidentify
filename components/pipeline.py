@@ -59,7 +59,6 @@ class Pipeline:
                              parameters=self.parameters,
                              flag_dev_mode=self.flag_dev_mode)
         self.categories = ae.output()
-
     def _results_enhancement(self):
         print("4. Enhance evaluated arrays")
         a_enh = EvaluatedArraysEnhancement(file_path=self.file_path,

@@ -1,6 +1,7 @@
 import math
 
 from components_non_array_computations import StrandComputation
+from components_non_array_computations import StrandComputationNew
 from components_non_array_computations import FullISElementSearch
 from components_non_array_computations import complete_info_with_cas_identifier
 from components_non_array_computations import FullLeaderSeqSearch
@@ -53,8 +54,8 @@ class NonArrayComputations:
         self.data_with_all_computations = {"IS": self.is_element_result,
                                            "Cas": self.cas_results,
                                            "Strand": self.strand_results,
-                                           "Leader": self.leader_results,
-                                           "Downstream": self.downstream_results
+                                           "Leader": [self.leader_results_bona_fide, self.leader_results_alternative, self.leader_results_possible],
+                                           "Downstream": [self.downstream_results_bona_fide, self.downstream_results_alternative, self.downstream_results_possible]
                                            }
 
     def _calculate_is_elements(self):
@@ -159,12 +160,20 @@ class NonArrayComputations:
 
     def _calculate_strand(self):
         if self.flags_non_arrays_computations["flag_strand"]:
-            st = StrandComputation(list_of_crisprs=self.list_of_crisprs_bona_fide)
-            self.strand_results["Bona-fide"] = st.output()
-            st = StrandComputation(list_of_crisprs=self.list_of_crisprs_alternative)
-            self.strand_results["Alternative"] = st.output()
-            st = StrandComputation(list_of_crisprs=self.list_of_crisprs_possible)
-            self.strand_results["Possible"] = st.output()
+            try:
+                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_bona_fide)
+                self.strand_results["Bona-fide"] = st.output()
+                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_alternative)
+                self.strand_results["Alternative"] = st.output()
+                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_possible)
+                self.strand_results["Possible"] = st.output()
+            except Exception:
+                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_bona_fide)
+                self.strand_results["Bona-fide"] = st.output()
+                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_alternative)
+                self.strand_results["Alternative"] = st.output()
+                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_possible)
+                self.strand_results["Possible"] = st.output()
         else:
             self.strand_results["Bona-fide"] = {index: "Forward (Orientation was not computed)"
                                                 for index in range(len(self.list_of_crisprs_bona_fide))}
@@ -174,8 +183,14 @@ class NonArrayComputations:
                                                for index in range(len(self.list_of_crisprs_possible))}
 
     def _calculate_leader(self):
-        flss = FullLeaderSeqSearch(self.list_of_crisprs_bona_fide, self.strand_results["Bona-fide"], self.dna)
-        self.leader_results, self.downstream_results = flss.output()
+        flss_bona_fide = FullLeaderSeqSearch(self.list_of_crisprs_bona_fide, self.strand_results["Bona-fide"], self.dna)
+        self.leader_results_bona_fide, self.downstream_results_bona_fide = flss_bona_fide.output()
 
+        flss_alternative = FullLeaderSeqSearch(self.list_of_crisprs_alternative, self.strand_results["Alternative"],
+                                               self.dna)
+        self.leader_results_alternative, self.downstream_results_alternative = flss_alternative.output()
+
+        flss_possible = FullLeaderSeqSearch(self.list_of_crisprs_possible, self.strand_results["Possible"], self.dna)
+        self.leader_results_possible, self.downstream_results_possible = flss_possible.output()
     def output(self):
         return self.data_with_all_computations

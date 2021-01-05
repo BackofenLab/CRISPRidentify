@@ -111,16 +111,13 @@ class ArrayEvaluation:
             data_alternative_filtered = []
             data_bad = [candidate for candidate in data if candidate[0] < 0.5]
 
-            if data_bad:
-                self.dict_low_score[key] = data_bad
-
             if data_alternative:
                 for element in data_alternative:
                     crispr = element[1]
                     if self.afsf(crispr):
                         data_alternative_filtered.append(element)
                     else:
-                        data_pre_possible.append(element)
+                        data_bad.append(element)
 
                 if data_alternative_filtered:
                     data_alternative_filtered = sorted(data_alternative_filtered, key=lambda x: x[0], reverse=True)
@@ -132,12 +129,37 @@ class ArrayEvaluation:
                         self.dict_alternative[key] = data_alternative_filtered
 
             if data_pre_possible:
-                data_pre_possible = sorted(data_pre_possible, key=lambda x: x[0], reverse=True)
-                best_possible_candidate = data_pre_possible[0]
-                possible_discarded = data_pre_possible[1:]
-                self.dict_possible[key] = [best_possible_candidate]
-                if possible_discarded:
-                    self.dict_possible_discarded[key] = possible_discarded
+                if key in self.dict_bona_fide:
+                    data_show_in_alternative = [candidate for candidate in data_pre_possible if candidate[0] >= 0.6]
+                    if data_show_in_alternative:
+                        data_show_in_alternative_filtered = []
+                        for element in data_show_in_alternative:
+                            crispr = element[1]
+                            if self.afsf(crispr):
+                                data_show_in_alternative_filtered.append(element)
+                            else:
+                                data_bad.append(element)
+
+                        if key in self.dict_alternative:
+                            self.dict_alternative[key] += data_show_in_alternative_filtered
+                        else:
+                            self.dict_alternative[key] = data_show_in_alternative_filtered
+
+                else:
+                    data_pre_possible = sorted(data_pre_possible, key=lambda x: x[0], reverse=True)
+                    best_possible_candidate = data_pre_possible[0]
+                    possible_discarded = data_pre_possible[1:]
+
+                    if self.afsf(best_possible_candidate[1]):
+                        self.dict_possible[key] = [best_possible_candidate]
+                    else:
+                        data_bad.append(best_possible_candidate)
+
+                    if possible_discarded:
+                        self.dict_possible_discarded[key] = possible_discarded
+
+            if data_bad:
+                self.dict_low_score[key] = data_bad
 
     def _split_into_categories_with_additional_classifier(self):
 

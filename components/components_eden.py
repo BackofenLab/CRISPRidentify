@@ -23,7 +23,6 @@ from collections import defaultdict, deque
 import dill
 from sklearn.base import BaseEstimator, TransformerMixin
 from scipy import io
-from sklearn.externals import joblib
 import requests
 import os
 import sys

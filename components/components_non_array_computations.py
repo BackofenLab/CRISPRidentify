@@ -103,6 +103,53 @@ class StrandComputation:
         return self.dict_strands
 
 
+class StrandComputationNew:
+    def __init__(self, list_of_crisprs):
+        self.list_of_crisprs = list_of_crisprs
+        self.dict_strands = {}
+
+        self._compute_all_strands()
+
+    def _compute_all_strands(self):
+        if self.list_of_crisprs:
+            with open("CRISPR_arrays_for_strand.fa", "w") as f:
+                for array_index, array in enumerate(self.list_of_crisprs, 1):
+                    consensus = array.consensus
+                    f.write(f">CRISPR_{array_index}_consensus\n{consensus}\n")
+
+                if len(self.list_of_crisprs) == 2:
+                    f.write(f">CRISPR_3_consensus\n{self.list_of_crisprs[-1].consensus}\n")
+
+            try:
+                os.mkdir("ResultsStrand")
+            except Exception:
+                pass
+
+            cmd = "python tools/strand_prediction/CRISPRstrand/CRISPRstrand.py -r -i CRISPR_arrays_for_strand.fa --model_path tools/strand_prediction/CRISPRstrand/Models/model_r.h5 --output_folder ResultsStrand"
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            a, b = process.communicate()
+            #print(a, b)
+            os.remove("CRISPR_arrays_for_strand.fa")
+
+            with open("ResultsStrand/CRISPRstrand_Summary.tsv", "r") as f:
+                lines = f.readlines()
+                strands = [l.split()[3] for l in lines]
+                strands = ["Reversed" if s == "Reverse" else "Forward" for s in strands]
+
+            for index, crispr in enumerate(self.list_of_crisprs):
+                self.dict_strands[index] = strands[index]
+
+            try:
+                shutil.rmtree("ResultsStrand")
+            except Exception:
+                pass
+
+    def output(self):
+        return self.dict_strands
+
+
+
+
 #      IS element computation
 ################################################
 ################################################
