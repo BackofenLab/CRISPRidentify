@@ -1,7 +1,8 @@
 import os
 import pickle
+from os import listdir
 from os.path import basename
-from os.path import join
+from os.path import isfile,  join
 from components_detection_refinement import CrisprCandidate
 
 
@@ -747,4 +748,31 @@ class GFFOutputMaker:
                         f.write(line_repeat)
 
 
+class CompleteFolderSummaryMaker:
+    def __init__(self, folder_result):
+        self.folder_result = folder_result
 
+        self._list_sub_folders_()
+        self._make_complete_summary()
+
+    def _list_sub_folders_(self):
+        self.sub_folders = [folder for folder in listdir(self.folder_result)
+                            if not isfile(join(self.folder_result, folder))]
+
+    def _make_complete_summary(self):
+        summary_path = join(self.folder_result, "Complete_summary.csv")
+        global_counter = 1
+        with open(summary_path, "w") as f:
+            for sub_folder_index, sub_folder in enumerate(self.sub_folders):
+                complete_path = join(self.folder_result, sub_folder, "Summary.csv")
+                with open(complete_path) as fr:
+                    lines = fr.readlines()
+                if sub_folder_index == 0:
+                    header = lines[0]
+                    header = "Name,Global ID," + header
+                    f.write(header)
+
+                for line in lines[1:]:
+                    new_line = sub_folder + "," + str(global_counter) + "," + line
+                    global_counter += 1
+                    f.write(new_line)

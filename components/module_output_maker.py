@@ -2,6 +2,7 @@ from components_output_maker import SimpleOutputMaker
 from components_output_maker import SummaryOutputMaker
 from components_output_maker import SummaryMakerCSV
 from components_output_maker import PickleOutputMaker
+from components_output_maker import CompleteFolderSummaryMaker
 
 
 class OutputMaker:
@@ -15,6 +16,7 @@ class OutputMaker:
         self.non_array_data = non_array_data
         self.list_features = list_features
         self.header = header
+        self.global_result_folder = "/".join(self.result_path.split("/")[:-1])
 
         self._make_output()
 
@@ -33,6 +35,8 @@ class OutputMaker:
         sm_csv = SummaryMakerCSV(result_path=self.result_path,
                                  categories=self.categories,
                                  non_array_data=self.non_array_data)
+
+        cfsm = CompleteFolderSummaryMaker(folder_result=self.global_result_folder)
 
         if self.pickle_result_path:
             pom = PickleOutputMaker(file_path=self.file_path,
