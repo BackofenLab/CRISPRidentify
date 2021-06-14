@@ -2,9 +2,8 @@ import os
 import pickle
 from os import listdir
 from os.path import basename
-from os.path import isfile,  join
+from os.path import isfile, join
 from components_detection_refinement import CrisprCandidate
-
 
 
 def rev_compliment_seq(seq):
@@ -112,7 +111,7 @@ class SimpleOutputMaker:
 
         self.list_indexes = [indexes_bona_fide, indexes_alternative, indexes_possible,
                              indexes_possible_discarded, indexes_low_score]
-        
+
     def _write_simple_txt_files(self):
         if not os.path.exists(self.result_path):
             os.makedirs(self.result_path)
@@ -154,9 +153,9 @@ class SimpleOutputMaker:
                     crispr_stats = crispr.compute_stats()
                     file_name.write(
                         "{} CRISPR: {}, {}-{}, number of Repeats: {}, avg. length of Repeat: {}, avg length of Spacer: {}\n\n"
-                        .format(category_name, array_index, crispr_stats["start"],
-                                crispr_stats["end"], crispr_stats["number_repeats"],
-                                crispr_stats["avg_repeat"], crispr_stats["avg_spacer"]))
+                            .format(category_name, array_index, crispr_stats["start"],
+                                    crispr_stats["end"], crispr_stats["number_repeats"],
+                                    crispr_stats["avg_repeat"], crispr_stats["avg_spacer"]))
 
                     file_name.write(crispr.dot_repr())
 
@@ -193,7 +192,7 @@ class SummaryOutputMaker:
         list_crisprs = [list_info[0][1] for list_info in self.categories[0].values()]
         list_scores = [list_info[0][0] for list_info in self.categories[0].values()]
         list_feature_vectors = [list_info[0][2] for list_info in self.categories[0].values()]
-        
+
         with open(result_path, "w") as f:
             f.write(self.header)
             f.write("\n")
@@ -225,8 +224,8 @@ class SummaryOutputMaker:
                     f.write('\n{}\n\n'.format('=' * 100))
                 f.write(
                     "CRISPR: {}, {}-{}, number of Repeats: {}, avg. length of Repeat: {}, avg length of Spacer: {}\n\n"
-                    .format(str(crispr_index), start, end, number_of_repeats,
-                            avg_length_repeat, avg_length_spacer))
+                        .format(str(crispr_index), start, end, number_of_repeats,
+                                avg_length_repeat, avg_length_spacer))
 
                 f.write(output_crispr.dot_representation)
 
@@ -377,7 +376,7 @@ class PickleOutputMaker:
         try:
             os.mkdir(self.pickle_result_folder)
         except OSError:
-                pass
+            pass
 
         file_base = basename(self.file_name)
         acc_num = file_base.split(".")[0]
@@ -515,27 +514,24 @@ class GFFOutputMaker:
                     spacers = crispr.list_spacers
                     repeat_starts = crispr.list_repeat_starts
 
-                    repeat_starts = [1+r_s for r_s in repeat_starts]
+                    repeat_starts = [1 + r_s for r_s in repeat_starts]
                     repeat_ends = [rs + len(repeat) for rs, repeat in zip(repeat_starts, repeats)]
 
                     spacers_starts = [r_e + 1 for r_e in repeat_ends[:-1]]
                     spacers_ends = [s_s + len(s) for s_s, s in zip(spacers_starts, spacers)]
 
-                    repeat_indexes = list(range(1, len(repeats)+1))
+                    repeat_indexes = list(range(1, len(repeats) + 1))
                     spacer_indexes = list(range(1, len(spacers) + 1))
 
                     for r, s, r_s, r_e, s_s, s_e, r_index, s_index in zip(repeats, spacers, repeat_starts,
                                                                           repeat_ends, spacers_starts, spacers_ends,
                                                                           repeat_indexes, spacer_indexes):
-
                         repeat_len = len(r)
                         spacer_len = len(s)
                         line_repeat = f"{self.acc_num}\tCRISPRidentify\tdirect_repeat\t{r_s}\t{r_e}\t{repeat_len}\t{strand_sign}\t.\tID=CRISPR{array_index}_REPEAT{r_index}_{r_s}_{r_e};Name=CRISPR{array_index}_REPEAT{r_index}_{r_s}_{r_e};Parent=CRISPR{array_index}_{r_s}_{r_e};Note={r};Dbxref=SO:0001459;Ontology_term=CRISPR\n"
                         line_spacer = f"{self.acc_num}\tCRISPRidentify\tspacer\t{s_s}\t{s_e}\t{spacer_len}\t{strand_sign}\t.\tID=CRISPR{array_index}_SPACER{s_index}_{s_s}_{s_e};Name=CRISPR{array_index}_REPEAT{s_index}_{s_s}_{s_e};Parent=CRISPR{array_index}_{s_s}_{s_e};Note={r};Dbxref=SO:0001459;Ontology_term=CRISPR\n"
                         f.write(line_repeat)
                         f.write(line_spacer)
-
-
 
                     last_repeat = repeats[-1]
                     len_last_repeat = len(last_repeat)
@@ -582,19 +578,18 @@ class GFFOutputMaker:
                     spacers = crispr.list_spacers
                     repeat_starts = crispr.list_repeat_starts
 
-                    repeat_starts = [1+r_s for r_s in repeat_starts]
+                    repeat_starts = [1 + r_s for r_s in repeat_starts]
                     repeat_ends = [rs + len(repeat) for rs, repeat in zip(repeat_starts, repeats)]
 
                     spacers_starts = [r_e + 1 for r_e in repeat_ends[:-1]]
                     spacers_ends = [s_s + len(s) for s_s, s in zip(spacers_starts, spacers)]
 
-                    repeat_indexes = list(range(1, len(repeats)+1))
+                    repeat_indexes = list(range(1, len(repeats) + 1))
                     spacer_indexes = list(range(1, len(spacers) + 1))
 
                     for r, s, r_s, r_e, s_s, s_e, r_index, s_index in zip(repeats, spacers, repeat_starts,
                                                                           repeat_ends, spacers_starts, spacers_ends,
                                                                           repeat_indexes, spacer_indexes):
-
                         repeat_len = len(r)
                         spacer_len = len(s)
                         line_repeat = f"{self.acc_num}\tCRISPRidentify\tdirect_repeat\t{r_s}\t{r_e}\t{repeat_len}\t{strand_sign}\t.\tID=CRISPR{array_index}_REPEAT{r_index}_{r_s}_{r_e};Name=CRISPR{array_index}_REPEAT{r_index}_{r_s}_{r_e};Parent=CRISPR{array_index}_{r_s}_{r_e};Note={r};Dbxref=SO:0001459;Ontology_term=CRISPR\n"
@@ -647,19 +642,18 @@ class GFFOutputMaker:
                     spacers = crispr.list_spacers
                     repeat_starts = crispr.list_repeat_starts
 
-                    repeat_starts = [1+r_s for r_s in repeat_starts]
+                    repeat_starts = [1 + r_s for r_s in repeat_starts]
                     repeat_ends = [rs + len(repeat) for rs, repeat in zip(repeat_starts, repeats)]
 
                     spacers_starts = [r_e + 1 for r_e in repeat_ends[:-1]]
                     spacers_ends = [s_s + len(s) for s_s, s in zip(spacers_starts, spacers)]
 
-                    repeat_indexes = list(range(1, len(repeats)+1))
+                    repeat_indexes = list(range(1, len(repeats) + 1))
                     spacer_indexes = list(range(1, len(spacers) + 1))
 
                     for r, s, r_s, r_e, s_s, s_e, r_index, s_index in zip(repeats, spacers, repeat_starts,
                                                                           repeat_ends, spacers_starts, spacers_ends,
                                                                           repeat_indexes, spacer_indexes):
-
                         repeat_len = len(r)
                         spacer_len = len(s)
                         line_repeat = f"{self.acc_num}\tCRISPRidentify\tdirect_repeat\t{r_s}\t{r_e}\t{repeat_len}\t{strand_sign}\t.\tID=CRISPR{array_index}_REPEAT{r_index}_{r_s}_{r_e};Name=CRISPR{array_index}_REPEAT{r_index}_{r_s}_{r_e};Parent=CRISPR{array_index}_{r_s}_{r_e};Note={r};Dbxref=SO:0001459;Ontology_term=CRISPR\n"
@@ -680,7 +674,6 @@ class GFFOutputMaker:
         with open(join(self.gff_folder, "combined.gff"), "w") as f:
 
             for category_index, category_name in zip([0, 1, 2], ["bona-fide", "alternative", "possible"]):
-
 
                 arrays = [el[1] for key in self.categories[category_index].keys()
                           for el in self.categories[category_index][key]]
@@ -716,27 +709,24 @@ class GFFOutputMaker:
                         spacers = crispr.list_spacers
                         repeat_starts = crispr.list_repeat_starts
 
-                        repeat_starts = [1+r_s for r_s in repeat_starts]
+                        repeat_starts = [1 + r_s for r_s in repeat_starts]
                         repeat_ends = [rs + len(repeat) for rs, repeat in zip(repeat_starts, repeats)]
 
                         spacers_starts = [r_e + 1 for r_e in repeat_ends[:-1]]
                         spacers_ends = [s_s + len(s) for s_s, s in zip(spacers_starts, spacers)]
 
-                        repeat_indexes = list(range(1, len(repeats)+1))
+                        repeat_indexes = list(range(1, len(repeats) + 1))
                         spacer_indexes = list(range(1, len(spacers) + 1))
 
                         for r, s, r_s, r_e, s_s, s_e, r_index, s_index in zip(repeats, spacers, repeat_starts,
                                                                               repeat_ends, spacers_starts, spacers_ends,
                                                                               repeat_indexes, spacer_indexes):
-
                             repeat_len = len(r)
                             spacer_len = len(s)
                             line_repeat = f"{self.acc_num}\tCRISPRidentify\tdirect_repeat\t{r_s}\t{r_e}\t{repeat_len}\t{strand_sign}\t.\tID=CRISPR{array_index}_REPEAT{r_index}_{r_s}_{r_e};Name=CRISPR{array_index}_REPEAT{r_index}_{r_s}_{r_e};Parent=CRISPR{array_index}_{r_s}_{r_e};Note={r};Dbxref=SO:0001459;Ontology_term=CRISPR\n"
                             line_spacer = f"{self.acc_num}\tCRISPRidentify\tspacer\t{s_s}\t{s_e}\t{spacer_len}\t{strand_sign}\t.\tID=CRISPR{array_index}_SPACER{s_index}_{s_s}_{s_e};Name=CRISPR{array_index}_REPEAT{s_index}_{s_s}_{s_e};Parent=CRISPR{array_index}_{s_s}_{s_e};Note={r};Dbxref=SO:0001459;Ontology_term=CRISPR\n"
                             f.write(line_repeat)
                             f.write(line_spacer)
-
-
 
                         last_repeat = repeats[-1]
                         len_last_repeat = len(last_repeat)
@@ -762,17 +752,25 @@ class CompleteFolderSummaryMaker:
     def _make_complete_summary(self):
         summary_path = join(self.folder_result, "Complete_summary.csv")
         global_counter = 1
+        flag_header = False
+        flag_found_arrays = False
         with open(summary_path, "w") as f:
             for sub_folder_index, sub_folder in enumerate(self.sub_folders):
                 complete_path = join(self.folder_result, sub_folder, "Summary.csv")
-                with open(complete_path) as fr:
-                    lines = fr.readlines()
-                if sub_folder_index == 0:
-                    header = lines[0]
-                    header = "Name,Global ID," + header
-                    f.write(header)
+                if os.path.exists(complete_path):
+                    flag_found_arrays = True
+                    with open(complete_path) as fr:
+                        lines = fr.readlines()
+                    if not flag_header:
+                        header = lines[0]
+                        header = "Name,Global ID," + header
+                        f.write(header)
+                        flag_header = True
 
-                for line in lines[1:]:
-                    new_line = sub_folder + "," + str(global_counter) + "," + line
-                    global_counter += 1
-                    f.write(new_line)
+                    for line in lines[1:]:
+                        new_line = sub_folder.strip() + "," + str(global_counter) + "," + line
+                        global_counter += 1
+                        f.write(new_line)
+
+            if not flag_found_arrays:
+                f.write("No arrays found")
