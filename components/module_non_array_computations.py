@@ -25,6 +25,7 @@ class NonArrayComputations:
 
         self.is_element_result = {}
         self.cas_results = {}
+        self.unstructured_cas_result_from_cas_identifier = {}
         self.strand_results = {}
         self.leader_results = {}
         self.downstream_results = {}
@@ -55,8 +56,8 @@ class NonArrayComputations:
                                            "Cas": self.cas_results,
                                            "Strand": self.strand_results,
                                            "Leader": [self.leader_results_bona_fide, self.leader_results_alternative, self.leader_results_possible],
-                                           "Downstream": [self.downstream_results_bona_fide, self.downstream_results_alternative, self.downstream_results_possible]
-                                           }
+                                           "Downstream": [self.downstream_results_bona_fide, self.downstream_results_alternative, self.downstream_results_possible],
+                                           "Unstructured_Cas":self.unstructured_cas_result_from_cas_identifier}
 
     def _calculate_is_elements(self):
         fies = FullISElementSearch(full_dna=self.dna, list_of_crisprs=self.list_of_crisprs_bona_fide,
@@ -146,6 +147,7 @@ class NonArrayComputations:
             return dict_cas_gene_order_for_separated
 
         dict_cas_genes = complete_info_with_cas_identifier(self.file_path)
+        self.unstructured_cas_result_from_cas_identifier = dict_cas_genes
 
         intervals = _get_crispr_intervals()
         allowed_intervals = _compute_allowed_intervals(intervals)
@@ -192,5 +194,6 @@ class NonArrayComputations:
 
         flss_possible = FullLeaderSeqSearch(self.list_of_crisprs_possible, self.strand_results["Possible"], self.dna)
         self.leader_results_possible, self.downstream_results_possible = flss_possible.output()
+
     def output(self):
         return self.data_with_all_computations

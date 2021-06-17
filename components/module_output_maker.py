@@ -2,14 +2,17 @@ from components_output_maker import SimpleOutputMaker
 from components_output_maker import SummaryOutputMaker
 from components_output_maker import SummaryMakerCSV
 from components_output_maker import PickleOutputMaker
+from components_output_maker import CasSummaryMaker
 from components_output_maker import CompleteFolderSummaryMaker
+from components_output_maker import CompleteCasSummaryFolderMaker
 
 
 class OutputMaker:
-    def __init__(self, file_path, parameters, result_path, pickle_result_path,
+    def __init__(self, file_path, parameters, flags, result_path, pickle_result_path,
                  categories, non_array_data, list_features, header):
         self.file_path = file_path
         self.parameters = parameters
+        self.flags = flags
         self.result_path = result_path
         self.pickle_result_path = pickle_result_path
         self.categories = categories
@@ -36,7 +39,12 @@ class OutputMaker:
                                  categories=self.categories,
                                  non_array_data=self.non_array_data)
 
+        if self.flags["flag_cas"] is True:
+            sm_cas = CasSummaryMaker(result_path=self.result_path,
+                                     non_array_data=self.non_array_data)
+
         cfsm = CompleteFolderSummaryMaker(folder_result=self.global_result_folder)
+        ccfsm = CompleteCasSummaryFolderMaker(folder_result=self.global_result_folder)
 
         if self.pickle_result_path:
             pom = PickleOutputMaker(file_path=self.file_path,

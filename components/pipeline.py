@@ -79,6 +79,7 @@ class Pipeline:
         print("6. Write down the results")
         om = OutputMaker(file_path=self.file_path,
                          parameters=self.parameters,
+                         flags=self.flags,
                          result_path=self.result_folder_path,
                          pickle_result_path=self.pickle_folder_path,
                          categories=self.categories,

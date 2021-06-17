@@ -774,3 +774,68 @@ class CompleteFolderSummaryMaker:
 
             if not flag_found_arrays:
                 f.write("No arrays found")
+
+
+class CasSummaryMaker:
+    def __init__(self, result_path, non_array_data):
+        self.result_path = result_path
+        self.non_array_data = non_array_data
+
+        self._write_cas_summary()
+
+    def _write_cas_summary(self):
+        dict_unstructured_cas = self.non_array_data["Unstructured_Cas"]
+        if dict_unstructured_cas:
+            result_csv_path = join(self.result_path, 'Cas_Summary.csv')
+            with open(result_csv_path, "w") as f:
+                f.write(",".join(["ID", "Start", "End", "Length", "Cas type"]))
+                f.write("\n")
+                counter = 1
+                for interval, cas_type in dict_unstructured_cas.items():
+                    start, end = interval
+                    start, end = int(start), int(end)
+                    length = end - start + 1
+                    line = ",".join([str(x) for x in [counter, start, end, length, cas_type]]) + "\n"
+                    f.write(line)
+                    counter += 1
+
+
+class CompleteCasSummaryFolderMaker:
+    def __init__(self, folder_result):
+        self.folder_result = folder_result
+
+        self._list_sub_folders_()
+        self._make_complete_summary()
+
+    def _list_sub_folders_(self):
+        self.sub_folders = [folder for folder in listdir(self.folder_result)
+                            if not isfile(join(self.folder_result, folder))]
+
+    def _make_complete_summary(self):
+        summary_path = join(self.folder_result, "Complete_Cas_summary.csv")
+        global_counter = 1
+        flag_header = False
+        flag_found_cas = False
+        with open(summary_path, "w") as f:
+            for sub_folder_index, sub_folder in enumerate(self.sub_folders):
+                complete_path = join(self.folder_result, sub_folder, "Cas_Summary.csv")
+                if os.path.exists(complete_path):
+                    flag_found_cas = True
+                    with open(complete_path) as fr:
+                        lines = fr.readlines()
+                    if not flag_header:
+                        header = lines[0]
+                        header = "Name,Global ID," + header
+                        f.write(header)
+                        flag_header = True
+
+                    for line in lines[1:]:
+                        new_line = sub_folder.strip() + "," + str(global_counter) + "," + line
+                        global_counter += 1
+                        f.write(new_line)
+
+            if not flag_found_cas:
+                f.write("No cas proteins found")
+
+
+
