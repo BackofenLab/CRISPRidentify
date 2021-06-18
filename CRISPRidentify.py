@@ -38,6 +38,9 @@ parser.add_argument('--result_folder', type=str, default="Results",
 parser.add_argument('--pickle_report', type=str, default='',
                     help='pickled report file (default: None)')
 
+parser.add_argument('--fasta_report', type=str, default=False,
+                    help='fasta report file (default: False)')
+
 parser.add_argument('--strand', type=str, default=True,
                     help='CRISPR array orientation prediction (default: True)')
 
@@ -93,6 +96,8 @@ parser.add_argument('--max_edit_distance_enhanced', type=int, default=6,
                     help='maximum edit distance for the evaluated array enhancement (default: 6)')
 
 
+
+
 args = parser.parse_args()
 complete_path_folder = args.input_folder
 complete_path_file = args.file
@@ -115,6 +120,7 @@ strand_flag = False if (args.strand in ["False", False]) else True
 cas_flag = False if (args.cas in ["False", False]) else True
 is_flag = False if (args.is_element in ["False", False]) else True
 degenerated_flag = False if (args.degenerated in ["False", False]) else True
+fasta_report = False if (args.fasta_report in ["False", False]) else True
 
 flags = {"flag_parallel": flag_parallel,
          "flag_cpu": flag_cpu,
@@ -122,6 +128,7 @@ flags = {"flag_parallel": flag_parallel,
          "flag_strand": strand_flag,
          "flag_cas": cas_flag,
          "flag_is": is_flag,
+         "flag_fasta_report": fasta_report,
          "flag_degenerated": degenerated_flag,
          "flag_enhancement_min_max": flag_enhancement_max_min,
          "flag_enhancement_start_end": flag_enhancement_start_end
@@ -169,12 +176,15 @@ list_ml_classifiers = [ClassifierWrapper(classifier_type=None,
                        for model in list_models]
 
 
-
-
 def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=None, number_of_chunks=None):
-
     files = [f for f in listdir(folder) if isfile(join(folder, f))]
-    files = sorted(files)
+    files_name_fix = [f.replace("\r", "").replace("\t", "").replace("\n", "") for f in files]
+    for old_name, new_name in zip(files, files_name_fix):
+        old_path = join(folder, old_name)
+        new_path = join(folder, new_name)
+        if old_path != new_path:
+            os.system(f"mv {old_path} {new_path}")
+    files = sorted(files_name_fix)
 
     if number_of_chunks:
         chunk_size = math.ceil(len(files) / number_of_chunks)
@@ -227,7 +237,7 @@ def multiline_fasta_handle(file):
     cmd = f"cat {file}"
     cmd += " | awk '{ if (substr($0, 1, 1)==\">\") {"
     cmd += "filename=(\"{}/\"".format(base_name)
-    cmd += "substr($0,2) \".fa\")} "
+    cmd += "substr($0,2)\".fa\")} "
     cmd += f"print $0 > filename "
     cmd += "}'"
 

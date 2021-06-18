@@ -838,4 +838,117 @@ class CompleteCasSummaryFolderMaker:
                 f.write("No cas proteins found")
 
 
+class FastaOutputArrayMaker:
+    def __init__(self, folder_result, categories, non_array_data):
+        self.folder_result = folder_result
+        self.categories = categories
+        self.non_array_data = non_array_data
+
+        self._make_fasta_files()
+
+    def _make_fasta_files(self):
+        result_path_repeats = join(self.folder_result, 'Repeats.fasta')
+        result_path_spacers = join(self.folder_result, 'Spacers.fasta')
+        result_path_arrays = join(self.folder_result, 'Arrays.fasta')
+        list_crisprs = [list_info[0][1] for list_info in self.categories[0].values()]
+
+        if list_crisprs:
+
+            with open(result_path_repeats, "w") as fr:
+                with open(result_path_spacers, "w") as fs:
+                    with open(result_path_arrays, "w") as fa:
+                        for index, array in enumerate(list_crisprs):
+
+                            strand = self.non_array_data["Strand"]["Bona-fide"][index]
+                            if strand in ("Forward", "Forward (Orientation was not computed)"):
+                                output_crispr = OutputCrispr(array)
+                            else:
+                                output_crispr = OutputCrispr(RevComComputation(array).output())
+
+                            crispr_index = index + 1
+                            start, end = output_crispr.start, output_crispr.end
+
+                            repeats = output_crispr.list_repeats
+                            spacers = output_crispr.list_spacers
+                            array_seq = "".join([r+s for r, s in zip(repeats, spacers)]) + repeats[-1]
+
+                            for repeat_number, repeat in enumerate(repeats, 1):
+                                header_line = f">CRISPR_{crispr_index}_{start}_{end}_repeat_{repeat_number}\n"
+                                repeat_line = repeat + "\n"
+                                fr.write(header_line)
+                                fr.write(repeat_line)
+
+                            for spacer_number, spacer in enumerate(spacers, 1):
+                                header_line = f">CRISPR_{crispr_index}_{start}_{end}_spacer_{spacer_number}\n"
+                                repeat_line = spacer + "\n"
+                                fs.write(header_line)
+                                fs.write(repeat_line)
+
+                            fa.write(f">CRISPR_{crispr_index}_{start}_{end}\n")
+                            fa.write(array_seq + "\n")
+
+
+class CompleteFastaOutputMaker:
+    def __init__(self, folder_result):
+        self.folder_result = folder_result
+
+        self._list_sub_folders_()
+        self._make_complete_summary()
+
+    def _list_sub_folders_(self):
+        self.sub_folders = [folder for folder in listdir(self.folder_result)
+                            if not isfile(join(self.folder_result, folder))]
+
+    def _make_complete_summary(self):
+        summary_path_repeats = join(self.folder_result, "Complete_repeat_dataset.fasta")
+        summary_path_spacers = join(self.folder_result, "Complete_spacer_dataset.fasta")
+        summary_path_arrays = join(self.folder_result, "Complete_array_dataset.fasta")
+
+        with open(summary_path_repeats, "w") as fr:
+            for sub_folder_index, sub_folder in enumerate(self.sub_folders):
+                complete_path = join(self.folder_result, sub_folder, "Repeats.fasta")
+                if os.path.exists(complete_path):
+                    with open(complete_path) as f:
+                        lines = f.readlines()
+                        headers = lines[::2]
+                        sequences = lines[1::2]
+                        for header, sequence in zip(headers, sequences):
+                            new_header = ">" + sub_folder.strip() + "_" + header[1:]
+                            fr.write(new_header)
+                            fr.write(sequence)
+
+        with open(summary_path_spacers, "w") as fs:
+            for sub_folder_index, sub_folder in enumerate(self.sub_folders):
+                complete_path = join(self.folder_result, sub_folder, "Spacers.fasta")
+                if os.path.exists(complete_path):
+                    with open(complete_path) as f:
+                        lines = f.readlines()
+                        headers = lines[::2]
+                        sequences = lines[1::2]
+                        for header, sequence in zip(headers, sequences):
+                            new_header = ">" + sub_folder.strip() + "_" + header[1:]
+                            fs.write(new_header)
+                            fs.write(sequence)
+
+        with open(summary_path_arrays, "w") as fa:
+            for sub_folder_index, sub_folder in enumerate(self.sub_folders):
+                complete_path = join(self.folder_result, sub_folder, "Arrays.fasta")
+                if os.path.exists(complete_path):
+                    with open(complete_path) as f:
+                        lines = f.readlines()
+                        headers = lines[::2]
+                        sequences = lines[1::2]
+                        for header, sequence in zip(headers, sequences):
+                            new_header = ">" + sub_folder.strip() + "_" + header[1:]
+                            fa.write(new_header)
+                            fa.write(sequence)
+
+
+
+
+
+
+
+
+
 

@@ -5,6 +5,8 @@ from components_output_maker import PickleOutputMaker
 from components_output_maker import CasSummaryMaker
 from components_output_maker import CompleteFolderSummaryMaker
 from components_output_maker import CompleteCasSummaryFolderMaker
+from components_output_maker import FastaOutputArrayMaker
+from components_output_maker import CompleteFastaOutputMaker
 
 
 class OutputMaker:
@@ -45,6 +47,14 @@ class OutputMaker:
 
         cfsm = CompleteFolderSummaryMaker(folder_result=self.global_result_folder)
         ccfsm = CompleteCasSummaryFolderMaker(folder_result=self.global_result_folder)
+
+        if self.flags["flag_fasta_report"] is True:
+            foam = FastaOutputArrayMaker(folder_result=self.result_path,
+                                         categories=self.categories,
+                                         non_array_data=self.non_array_data)
+
+            cfom = CompleteFastaOutputMaker(folder_result=self.global_result_folder)
+
 
         if self.pickle_result_path:
             pom = PickleOutputMaker(file_path=self.file_path,
