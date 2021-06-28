@@ -65,9 +65,12 @@ class BulkFeatureExtractorOrf:
                     f.write(crispr_seq)
                     f.write("\n")
 
-        cmd = 'tools/prodigal/prodigal'
-        cmd += ' -i file_for_prodigal.fa -o prodigal_result.txt -c -p meta'
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        #cmd = 'tools/prodigal/prodigal'
+        #cmd += ' -i file_for_prodigal.fa -o prodigal_result.txt -c -p meta'
+
+        no_binary_cmd = "prodigal -i file_for_prodigal.fa -o prodigal_result.txt -c -p meta"
+
+        process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
         with open("prodigal_result.txt") as f:
@@ -207,14 +210,19 @@ class BulkFeatureExtractorORFHMMR:
                     f.write(crispr_seq)
                     f.write("\n")
 
-        cmd = 'tools/prodigal/prodigal'
-        cmd += ' -i file_for_prodigal.fa -o prodigal_result.txt -c -p meta'
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        #cmd = 'tools/prodigal/prodigal'
+        #cmd += ' -i file_for_prodigal.fa -o prodigal_result.txt -c -p meta'
+
+        no_binary_cmd = "prodigal -i file_for_prodigal.fa -o prodigal_result.txt -c -p meta"
+        process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
-        cmd = 'tools/prodigal/prodigal'
-        cmd += ' -i file_for_prodigal.fa -p meta -a protein_results.fa'
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        #cmd = 'tools/prodigal/prodigal'
+        #cmd += ' -i file_for_prodigal.fa -p meta -a protein_results.fa'
+
+        no_binary_cmd = "prodigal  -i file_for_prodigal.fa -p meta -a protein_results.fa"
+
+        process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
         with open("prodigal_result.txt") as f:
@@ -290,8 +298,11 @@ class BulkFeatureExtractorORFHMMR:
             self.dict_final_orf_result[key] = list_scores
 
     def _run_hmm_search(self):
-        cmd = 'tools/hmm_search/hmmsearch --tblout result_hmm.out tools/hmm_search/models_tandem.hmm protein_results.fa'
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        #cmd = 'tools/hmm_search/hmmsearch --tblout result_hmm.out tools/hmm_search/models_tandem.hmm protein_results.fa'
+
+        no_binary_cmd = "hmmsearch --tblout result_hmm.out tools/hmm_search/models_tandem.hmm protein_results.fa"
+
+        process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
     def _extract_best_score_from_hmm(self):
@@ -386,24 +397,28 @@ class BulkFeatureExtractorBlast:
 
         db_file = 'Verified_repeats_dataset1.fa'
 
-        cmd = 'tools/blasting/blastn -query file_with_all_consensus.fa'
-        cmd += ' -db tools/blasting/'
-        cmd += db_file
-        cmd += ' -word_size 6'
-        cmd += ' -outfmt 6 -out output_fasta_bulk_extraction1'
+        #cmd = 'tools/blasting/blastn -query file_with_all_consensus.fa'
+        #cmd += ' -db tools/blasting/'
+        #cmd += db_file
+        #cmd += ' -word_size 6'
+        #cmd += ' -outfmt 6 -out output_fasta_bulk_extraction1'
 
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        no_binary_cmd = f"blastn -query file_with_all_consensus.fa -db tools/blasting/{db_file} -word_size 6  -outfmt 6 -out output_fasta_bulk_extraction1"
+
+        process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
         db_file = 'Verified_repeats_dataset2.fa'
 
-        cmd = 'tools/blasting/blastn -query file_with_all_consensus.fa'
-        cmd += ' -db tools/blasting/'
-        cmd += db_file
-        cmd += ' -word_size 6'
-        cmd += ' -outfmt 6 -out output_fasta_bulk_extraction2'
+        #cmd = 'tools/blasting/blastn -query file_with_all_consensus.fa'
+        #cmd += ' -db tools/blasting/'
+        #cmd += db_file
+        #cmd += ' -word_size 6'
+        #cmd += ' -outfmt 6 -out output_fasta_bulk_extraction2'
 
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        no_binary_cmd = f"blastn -query file_with_all_consensus.fa -db tools/blasting/{db_file} -word_size 6  -outfmt 6 -out output_fasta_bulk_extraction2"
+
+        process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
         with open("output_fasta_bulk_extraction1") as f:
@@ -495,9 +510,11 @@ class BulkFeatureExtractorMFE:
                     f.write(consensus)
                     f.write("\n")
 
-        cmd = "cat file_for_mfe.fa | tools/rna_fold/RNAfold --noLP --noPS > rna_fold_output.txt"
+        #cmd = "cat file_for_mfe.fa | tools/rna_fold/RNAfold --noLP --noPS > rna_fold_output.txt"
 
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        no_binary_cmd = "cat file_for_mfe.fa | RNAfold --noLP --noPS > rna_fold_output.txt"
+
+        process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
         with open("rna_fold_output.txt") as f:
@@ -867,18 +884,22 @@ class CrisprHmmer(RepeatSpacersFeatures):
             f.write(self.crispr_seq)
 
     def _call_prodigal(self):
-        cmd = 'tools/prodigal/prodigal'
-        cmd += ' -i fasta_to_do_hmm_{}.fa -p meta -a protein_{}.fa'.format(self.index, self.index)
+        #cmd = 'tools/prodigal/prodigal'
+        #cmd += ' -i fasta_to_do_hmm_{}.fa -p meta -a protein_{}.fa'.format(self.index, self.index)
 
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        no_binary_cmd = f"prodigal -i fasta_to_do_hmm_{self.index}.fa -p meta -a protein_{self.index}.fa"
+        process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         a, b = process.communicate()
 
     def _run_hmm_search(self, hmm_model):
         if os.stat('protein_{}.fa'.format(self.index)).st_size != 0:
-            cmd = 'tools/hmm_search/hmmsearch --tblout {} {} {}'.format('result_hmm_{}.out'.format(self.index),
-                                                                        hmm_model,
-                                                                        'protein_{}.fa'.format(self.index))
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            #cmd = 'tools/hmm_search/hmmsearch --tblout {} {} {}'.format('result_hmm_{}.out'.format(self.index),
+            #                                                            hmm_model,
+            #                                                            'protein_{}.fa'.format(self.index))
+
+            no_binary_cmd = f"tools/hmm_search/hmmsearch --tblout result_hmm_{self.index}.out hmm_model protein_{self.index}.fa"
+
+            process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             process.communicate()
         else:
             self.hmm_score = 0.0

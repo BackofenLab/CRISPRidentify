@@ -71,20 +71,27 @@ class VmatchRun:
         self.dna = self.dna.upper()
 
     def _mkvtree_command(self):
-        cmd = "tools/vmatch/mkvtree -db new_input.fa -dna -pl -lcp -suf -tis -ois -bwt -bck -sti1"
-        os.system(cmd)
+        #cmd = "tools/vmatch/mkvtree -db new_input.fa -dna -pl -lcp -suf -tis -ois -bwt -bck -sti1"
+        no_binary_cmd = "mkvtree -db new_input.fa -dna -pl -lcp -suf -tis -ois -bwt -bck -sti1"
+        os.system(no_binary_cmd)
 
     def _vmatch_command(self):
         l_flag_val = self.settings["vmatch -l"]
         e_flag_val = self.settings["vmatch -e"]
         e_value_flag_val = self.settings["vmatch -evalue"]
 
-        cmd = "tools/vmatch/vmatch " + "-l " + l_flag_val + " -evalue " + e_value_flag_val + " -e " + e_flag_val + \
-              " -s leftseq " + " -absolute -nodist -noevalue -noscore -noidentity " + \
-              "-sort ia -best 1000000 " + "new_input.fa" + " > " + \
-              "vmatch_result_new.txt"
+        #cmd = "tools/vmatch/vmatch " + "-l " + l_flag_val + " -evalue " + e_value_flag_val + " -e " + e_flag_val + \
+        #      " -s leftseq " + " -absolute -nodist -noevalue -noscore -noidentity " + \
+        #      "-sort ia -best 1000000 " + "new_input.fa" + " > " + \
+        #      "vmatch_result_new.txt"
 
-        os.system(cmd)
+        no_binary_cmd = "vmatch " + "-l " + l_flag_val + " -evalue " + e_value_flag_val + " -e " + e_flag_val + \
+                         " -s leftseq " + " -absolute -nodist -noevalue -noscore -noidentity " + \
+                         "-sort ia -best 1000000 " + "new_input.fa" + " > " + \
+                         "vmatch_result_new.txt"
+
+        os.system(no_binary_cmd)
+
 
     def _take_vmatch_results_new(self):
         cutoff = 55
@@ -356,8 +363,9 @@ class FilterApproximation:
             f.write(lines)
 
     def _run_clustal_omega_repeats(self):
-        cmd = self.absolute_path_to_tools + "clustalOmega/clustalo -i clustal_repeats.fa -o loc_align.txt"
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        #cmd = self.absolute_path_to_tools + "clustalOmega/clustalo -i clustal_repeats.fa -o loc_align.txt"
+        cmd_no_binary = "clustalo -i clustal_repeats.fa -o loc_align.txt"
+        process = subprocess.Popen(cmd_no_binary, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
     def _find_max_clustal_omega_repeat_results(self):
@@ -406,8 +414,9 @@ class FilterApproximation:
             f.write(">min\n")
             f.write(f"{self.min_seq}\n")
 
-        cmd = self.absolute_path_to_tools + "clustalOmega/clustalo -i min_max.fa -o min_max_align.txt"
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        #cmd = self.absolute_path_to_tools + "clustalOmega/clustalo -i min_max.fa -o min_max_align.txt"
+        cmd_no_binary = "clustalo -i min_max.fa -o min_max_align.txt"
+        process = subprocess.Popen(cmd_no_binary, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
     def _obtain_max_sequence(self):
