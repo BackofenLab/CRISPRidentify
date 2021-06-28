@@ -326,7 +326,7 @@ When `--file` or `--input_folder` flag is used the pipeline with automatically g
 
 On top of that the user might use the flag:
 
-`--fasta report True`
+`--fasta_report True`
 
 This option with create three fasta files:
 1. All the array sequences with their origins in the header
