@@ -314,6 +314,25 @@ Following information can be found in the summary:
 9. Array orientation
 10. Array category
 
+## Metagenomic analysis
+
+CRISPRidentify is suitable for easy and powerful metagenomic analysis
+When `--file` or `--input_folder` flag is used the pipeline with automatically generate two complete summaries 
+: 
+
+1. For all the identified arrays
+2. For all labeled Cas genes
+
+
+On top of that the user might use the flag:
+
+`--fasta report True`
+
+This option with create three fasta files:
+1. All the array sequences with their origins in the header
+2. All the repeat sequences with their origins and locations in the arrays
+3. All the spacer sequences with their origins and locations in the arrays
+
 ## Improving CRISPRidentify
 
 We are constantly working on the improvements of CRISPRidentify. If you found a bug or incorrect/missing CRISPR array representation please submit via github issue interface.
