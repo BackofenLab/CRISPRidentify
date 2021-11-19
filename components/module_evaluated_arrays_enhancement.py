@@ -33,7 +33,7 @@ class EvaluatedArraysEnhancement:
         self.dna = self.dna.upper()
 
     def _search_missed_or_degenerated_repeats(self):
-        for category in [self.bona_fide_arrays,self.alternative_arrays, self.possible_arrays]:
+        for category in [self.bona_fide_arrays, self.alternative_arrays, self.possible_arrays]:
             intervals = []
             arrays_for_intervals = []
 

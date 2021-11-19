@@ -7,16 +7,18 @@ from components_output_maker import CompleteFolderSummaryMaker
 from components_output_maker import CompleteCasSummaryFolderMaker
 from components_output_maker import FastaOutputArrayMaker
 from components_output_maker import CompleteFastaOutputMaker
+from components_output_maker import JsonOutputMaker
 
 
 class OutputMaker:
     def __init__(self, file_path, parameters, flags, result_path, pickle_result_path,
-                 categories, non_array_data, list_features, header):
+                 json_result_path, categories, non_array_data, list_features, header):
         self.file_path = file_path
         self.parameters = parameters
         self.flags = flags
         self.result_path = result_path
         self.pickle_result_path = pickle_result_path
+        self.json_result_path = json_result_path
         self.categories = categories
         self.non_array_data = non_array_data
         self.list_features = list_features
@@ -64,3 +66,10 @@ class OutputMaker:
                                     non_array_data=self.non_array_data,
                                     header=self.header,
                                     list_feature_names=self.list_features)
+
+        if self.json_result_path:
+            jom = JsonOutputMaker(file_path=self.file_path,
+                                  json_result_folder=self.json_result_path,
+                                  categories=self.categories,
+                                  non_array_data=self.non_array_data,
+                                  list_feature_names=self.non_array_data)

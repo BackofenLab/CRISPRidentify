@@ -1,5 +1,6 @@
 import os
 import pickle
+import json
 from os import listdir
 from os.path import basename
 from os.path import isfile, join
@@ -391,28 +392,118 @@ class JsonOutputMaker:
         self.non_array_data = non_array_data
         self.list_feature_names = list_feature_names
 
+        self.dict_crispr_indexes = {}
+
+        self._index_crispr_candidates()
         self._write_json()
 
+    def _index_crispr_candidates(self):
+        for index, key in enumerate(sorted(self.categories[0].keys()), 1):
+            self.dict_crispr_indexes[key] = index
+
+        index = len(self.categories[0])
+        cur_index = index + 1
+
+        for key in sorted(self.categories[2].keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
+
+        for key in sorted(self.categories[3].keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
+
+        for key in sorted(self.categories[4].keys()):
+            if key not in self.dict_crispr_indexes:
+                self.dict_crispr_indexes[key] = cur_index
+                cur_index += 1
+
+        indexes_bona_fide = [self.dict_crispr_indexes[key] for key in sorted(self.categories[0].keys())]
+        indexes_alternative = [self.dict_crispr_indexes[key] for key in sorted(self.categories[1].keys())]
+        indexes_possible = [self.dict_crispr_indexes[key] for key in sorted(self.categories[2].keys())]
+        indexes_possible_discarded = [self.dict_crispr_indexes[key] for key in sorted(self.categories[3].keys())]
+        indexes_low_score = [self.dict_crispr_indexes[key] for key in sorted(self.categories[4].keys())]
+        self.list_indexes = [indexes_bona_fide, indexes_alternative, indexes_possible,
+                             indexes_possible_discarded, indexes_low_score]
+
     def _write_json(self):
+        try:
+            os.mkdir(self.json_result_folder)
+        except OSError:
+            pass
+        json_dictionary = {}
+        global_index = 1
+        dictionary_all_arrays = {}
+
         category_names = ["Bona-fide", "Alternative", "Possible", "Possible Discarded", "Low score"]
-        for index, category in enumerate(category_names):
-            category = self.categories[index]
-            for info in category:
-                pass
-        dict_arrays = {}
+
+        for category_index, category_name in zip(range(0, 5),
+                                                 category_names):
+            dict_category = {}
+
+            arrays = [el[1] for key in self.categories[category_index].keys()
+                      for el in self.categories[category_index][key]]
+            scores = [el[0] for key in self.categories[category_index].keys()
+                      for el in self.categories[category_index][key]]
+
+            features = [el[2] for key in self.categories[category_index].keys()
+                        for el in self.categories[category_index][key]]
+
+            array_indexes = self.list_indexes[category_index]
+
+            if array_indexes:
+                for index, array_index, array, score, feature_info in zip(range(len(arrays)), array_indexes,
+                                                                          arrays, scores, features):
+                    if category_name in self.non_array_data["Strand"]:
+                        strand = self.non_array_data["Strand"][category_name][index]
+                    else:
+                        strand = "Forward (Orientation was not computed)"
+                    if strand == "Reversed":
+                        crispr = RevComComputation(array).output()
+                    else:
+                        crispr = array
+
+                    crispr_stats = crispr.compute_stats()
+
+                    crispr_start = crispr_stats["start"]
+                    crispr_end = crispr_stats["end"] + 1
+                    crispr_length = crispr_end - crispr_start + 1
+
+                    dict_crispr = self.crispr_candidate_to_dictionary(crispr)
+                    dict_crispr["strand"] = strand
+                    dict_crispr["start"] = crispr_start
+                    dict_crispr["end"] = crispr_end
+                    dict_crispr["length"] = crispr_length
+                    dict_crispr["array_index"] = array_index
+                    dict_crispr["certainty_score"] = score
+
+                    dict_category[global_index] = dict_crispr
+                    global_index += 1
+
+            dictionary_all_arrays[category_name] = dict_category
+
+        file_base = basename(self.file_path)
+        acc_num = file_base.split(".")[0]
+
+        json_dictionary["Arrays"] = dictionary_all_arrays
+
+        json_representation = json.dumps(json_dictionary)
+        with open(self.json_result_folder + '/' + acc_num + '.json', "w") as f:
+            f.write(json_representation)
 
     @staticmethod
     def crispr_candidate_to_dictionary(crispr_candidate):
         list_repeat_starts = crispr_candidate.list_repeat_starts
-        list_repeats = crispr_candidate.list_repeat_starts
+        list_repeats = crispr_candidate.list_repeats
         list_spacers = crispr_candidate.list_spacers
         consensus_repeat = crispr_candidate.consensus
         dot_representation = crispr_candidate.dot_repr()
         dot_representation_web_server = crispr_candidate.dot_repr_web_server()
 
-        dict_crispr = {"list_repeat_starts": list_repeat_starts,
-                       "list_repeats": list_repeats,
+        dict_crispr = {"list_repeats": list_repeats,
                        "list_spacers": list_spacers,
+                       "list_repeat_starts": list_repeat_starts,
                        "consensus_repeat": consensus_repeat,
                        "dot_representation": dot_representation,
                        "dot_representation_web_server": dot_representation_web_server}
@@ -493,8 +584,8 @@ class GFFOutputMaker:
             if array_indexes:
                 for index, array_index, array, score, feature_info in zip(range(len(arrays)), array_indexes,
                                                                           arrays, scores, features):
-                    if "bona-fide" in self.non_array_data["Strand"]:
-                        strand = self.non_array_data["Strand"]["bona_fide"][index]
+                    if "Bona-fide" in self.non_array_data["Strand"]:
+                        strand = self.non_array_data["Strand"]["Bona_fide"][index]
                     else:
                         strand = "Forward (Orientation was not computed)"
 
@@ -557,8 +648,8 @@ class GFFOutputMaker:
             if array_indexes:
                 for index, array_index, array, score, feature_info in zip(range(len(arrays)), array_indexes,
                                                                           arrays, scores, features):
-                    if "alternative" in self.non_array_data["Strand"]:
-                        strand = self.non_array_data["Strand"]["alternative"][index]
+                    if "Alternative" in self.non_array_data["Strand"]:
+                        strand = self.non_array_data["Strand"]["Alternative"][index]
                     else:
                         strand = "Forward (Orientation was not computed)"
 
@@ -621,8 +712,8 @@ class GFFOutputMaker:
             if array_indexes:
                 for index, array_index, array, score, feature_info in zip(range(len(arrays)), array_indexes,
                                                                           arrays, scores, features):
-                    if "possible" in self.non_array_data["Strand"]:
-                        strand = self.non_array_data["Strand"]["possible"][index]
+                    if "Possible" in self.non_array_data["Strand"]:
+                        strand = self.non_array_data["Strand"]["Possible"][index]
                     else:
                         strand = "Forward (Orientation was not computed)"
 
@@ -673,7 +764,7 @@ class GFFOutputMaker:
     def _create_gff_complete(self):
         with open(join(self.gff_folder, "combined.gff"), "w") as f:
 
-            for category_index, category_name in zip([0, 1, 2], ["bona-fide", "alternative", "possible"]):
+            for category_index, category_name in zip([0, 1, 2], ["Bona-fide", "Alternative", "Possible"]):
 
                 arrays = [el[1] for key in self.categories[category_index].keys()
                           for el in self.categories[category_index][key]]

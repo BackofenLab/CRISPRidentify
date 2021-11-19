@@ -38,6 +38,9 @@ parser.add_argument('--result_folder', type=str, default="Results",
 parser.add_argument('--pickle_report', type=str, default='',
                     help='pickled report file (default: None)')
 
+parser.add_argument('--json_report', type=str, default='',
+                    help='json report file (default: None)')
+
 parser.add_argument('--fasta_report', type=str, default=False,
                     help='fasta report file (default: False)')
 
@@ -103,6 +106,7 @@ complete_path_folder = args.input_folder
 complete_path_file = args.file
 folder_result = args.result_folder
 pickle_folder = args.pickle_report
+json_folder = args.json_report
 list_models = ["8", "9", "10"] if args.model == "ALL" else [args.model]
 flag_possible_differentiate_model = args.additional_model
 if flag_possible_differentiate_model not in ["possible", "all"]:
@@ -200,6 +204,7 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
         print("\n\n\n\t\t\t\tExecuting file {} out of {} ({})\n\n\n".format(index, len(chunk), file))
         pl = Pipeline(result_folder_path="{}/".format(result_folder),
                       pickle_folder_path="{}".format(pickle_folder),
+                      json_folder_path="{}".format(json_folder),
                       file_path=join(folder, file),
                       list_ml_classifiers=list_ml_classifiers,
                       list_features=feature_list,
@@ -212,6 +217,7 @@ def run_over_one_file(file, result_folder, pickle_folder):
     print("\n\n\n\t\t\t\tExecuting file {}\n\n\n".format(file))
     pl = Pipeline(result_folder_path="{}/".format(result_folder),
                   pickle_folder_path="{}".format(pickle_folder),
+                  json_folder_path="{}".format(json_folder),
                   file_path=join(file),
                   list_ml_classifiers=list_ml_classifiers,
                   list_features=feature_list,
@@ -253,12 +259,12 @@ if __name__ == "__main__":
             print("Multifasta")
             folder_multifasta = multiline_fasta_handle(complete_path_file)
             print(folder_multifasta)
-            run_over_folder_of_files(folder_multifasta, folder_result, pickle_folder)
+            run_over_folder_of_files(folder_multifasta, folder_result, pickle_folder, json_folder)
             shutil.rmtree(folder_multifasta)
         else:
-            run_over_one_file(complete_path_file, folder_result, pickle_folder)
+            run_over_one_file(complete_path_file, folder_result, pickle_folder, json_folder)
     elif complete_path_folder:
-        run_over_folder_of_files(complete_path_folder, folder_result, pickle_folder)
+        run_over_folder_of_files(complete_path_folder, folder_result, pickle_folder, json_folder)
     else:
         print("No input was provided")
 

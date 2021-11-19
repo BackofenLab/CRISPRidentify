@@ -7,10 +7,11 @@ from module_output_maker import OutputMaker
 
 
 class Pipeline:
-    def __init__(self, result_folder_path, pickle_folder_path, file_path,
+    def __init__(self, result_folder_path, pickle_folder_path,json_folder_path, file_path,
                  list_ml_classifiers, list_features, parameters, flags, flag_dev_mode):
         self.result_folder_path = result_folder_path + "/" + file_path.split("/")[-1].split(".")[0]
         self.pickle_folder_path = pickle_folder_path
+        self.json_folder_path = json_folder_path
         self.file_path = file_path
         self.list_ml_classifiers = list_ml_classifiers
         self.list_features = [features.strip().split(".") for features in list_features]
@@ -82,6 +83,7 @@ class Pipeline:
                          flags=self.flags,
                          result_path=self.result_folder_path,
                          pickle_result_path=self.pickle_folder_path,
+                         json_result_path=self.json_folder_path,
                          categories=self.categories,
                          non_array_data=self.non_array_data,
                          list_features=self.list_features,
