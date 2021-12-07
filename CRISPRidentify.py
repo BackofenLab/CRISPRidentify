@@ -213,7 +213,7 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
                       flag_dev_mode=FLAG_DEVELOPER_MODE)
 
 
-def run_over_one_file(file, result_folder, pickle_folder):
+def run_over_one_file(file, result_folder, pickle_folder, json_folder):
     print("\n\n\n\t\t\t\tExecuting file {}\n\n\n".format(file))
     pl = Pipeline(result_folder_path="{}/".format(result_folder),
                   pickle_folder_path="{}".format(pickle_folder),
@@ -252,7 +252,7 @@ def multiline_fasta_handle(file):
     return base_name
 
 
-if __name__ == "__main__":
+def main():
     start_time = time()
     if complete_path_file:
         if multiline_fasta_check(complete_path_file):
@@ -270,3 +270,7 @@ if __name__ == "__main__":
 
     end_time = time()
     print("Elapsed time: ", end_time-start_time)
+
+
+if __name__ == "__main__":
+    main()
