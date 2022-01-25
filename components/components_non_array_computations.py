@@ -133,7 +133,7 @@ class StrandComputationNew:
 
             with open("ResultsStrand/CRISPRstrand_Summary.tsv", "r") as f:
                 lines = f.readlines()
-                strands = [l.split()[3] for l in lines]
+                strands = [l.split()[3] for l in lines[1:]]
                 strands = ["Reversed" if s == "Reverse" else "Forward" for s in strands]
 
             for index, crispr in enumerate(self.list_of_crisprs):
