@@ -328,14 +328,16 @@ class SummaryMakerCSV:
             result_csv_path = self.result_path + '/Summary.csv'
             with open(result_csv_path, "w") as f:
                 f.write(",".join(["ID", "Region index", "Start", "End", "Length", "Consensus repeat", "Repeat Length",
-                                  "Average Spacer Length", "Number of spacers", "Strand", "Category"]))
+                                  "Average Spacer Length", "Number of spacers", "Strand", "Category", "Score"]))
                 f.write("\n")
                 global_index = 1
                 for category_index, category in zip(range(3), ["Bona-fide", "Alternative", "Possible"]):
                     arrays = [el[1] for key in self.categories[category_index].keys()
                               for el in self.categories[category_index][key]]
+                    scores = [el[0] for key in self.categories[category_index].keys()
+                              for el in self.categories[category_index][key]]
                     array_indexes = self.list_indexes[category_index]
-                    for index, array_index, array in zip(range(len(arrays)), array_indexes, arrays):
+                    for index, array_index, array, score in zip(range(len(arrays)), array_indexes, arrays, scores):
                         strand = self.non_array_data["Strand"][category][index]
                         crispr = array
                         crispr_stats = crispr.compute_stats()
@@ -354,7 +356,7 @@ class SummaryMakerCSV:
 
                         string_to_write = ",".join([str(global_index), crispr_index, start, end, length,
                                                     consensus_repeat, repeat_length, average_spacer_length,
-                                                    number_of_spacers, strand, category])
+                                                    number_of_spacers, strand, category, str(score)])
                         global_index += 1
                         f.write(string_to_write)
                         f.write("\n")
