@@ -15,6 +15,9 @@ from components_ml import ClassifierWrapper
 import shutil
 from time import time
 import math
+from components_output_maker import CompleteFastaOutputMaker
+from components_output_maker import CompleteFolderSummaryMaker
+from components_output_maker import CompleteCasSummaryFolderMaker
 
 
 FLAG_DEVELOPER_MODE = False
@@ -211,6 +214,10 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
                       parameters=parameters,
                       flags=flags,
                       flag_dev_mode=FLAG_DEVELOPER_MODE)
+
+    cfsm = CompleteFolderSummaryMaker(folder_result=result_folder)
+    ccfsm = CompleteCasSummaryFolderMaker(folder_result=result_folder)
+    cfom = CompleteFastaOutputMaker(folder_result=result_folder)
 
 
 def run_over_one_file(file, result_folder, pickle_folder, json_folder):

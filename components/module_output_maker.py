@@ -47,15 +47,15 @@ class OutputMaker:
             sm_cas = CasSummaryMaker(result_path=self.result_path,
                                      non_array_data=self.non_array_data)
 
-        cfsm = CompleteFolderSummaryMaker(folder_result=self.global_result_folder)
-        ccfsm = CompleteCasSummaryFolderMaker(folder_result=self.global_result_folder)
+        #cfsm = CompleteFolderSummaryMaker(folder_result=self.global_result_folder)
+        #ccfsm = CompleteCasSummaryFolderMaker(folder_result=self.global_result_folder)
 
         if self.flags["flag_fasta_report"] is True:
             foam = FastaOutputArrayMaker(folder_result=self.result_path,
                                          categories=self.categories,
                                          non_array_data=self.non_array_data)
 
-            cfom = CompleteFastaOutputMaker(folder_result=self.global_result_folder)
+            #cfom = CompleteFastaOutputMaker(folder_result=self.global_result_folder)
 
 
         if self.pickle_result_path:
