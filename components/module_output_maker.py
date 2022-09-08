@@ -1,13 +1,14 @@
-from components_output_maker import SimpleOutputMaker
-from components_output_maker import SummaryOutputMaker
-from components_output_maker import SummaryMakerCSV
-from components_output_maker import PickleOutputMaker
-from components_output_maker import CasSummaryMaker
-from components_output_maker import CompleteFolderSummaryMaker
-from components_output_maker import CompleteCasSummaryFolderMaker
-from components_output_maker import FastaOutputArrayMaker
-from components_output_maker import CompleteFastaOutputMaker
-from components_output_maker import JsonOutputMaker
+from components.components_output_maker import SimpleOutputMaker
+from components.components_output_maker import SummaryOutputMaker
+from components.components_output_maker import SummaryMakerCSV
+from components.components_output_maker import PickleOutputMaker
+from components.components_output_maker import CasSummaryMaker
+from components.components_output_maker import FastaOutputArrayMaker
+from components.components_output_maker import JsonOutputMaker
+
+from components.components_output_maker import CompleteFastaOutputMaker
+from components.components_output_maker import CompleteFolderSummaryMaker
+from components.components_output_maker import CompleteCasSummaryFolderMaker
 
 
 class OutputMaker:

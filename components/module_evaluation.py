@@ -1,9 +1,9 @@
 import numpy as np
 
-from components_evaluation import BulkFeatureExtractor
-from components_evaluation import FeatureExtractor
-from components_evaluation import get_full_vector
-from components_detection_refinement import AdvancedFuzzySearchFilter
+from components.components_evaluation import BulkFeatureExtractor
+from components.components_evaluation import FeatureExtractor
+from components.components_evaluation import get_full_vector
+from components.components_detection_refinement import AdvancedFuzzySearchFilter
 
 
 class ArrayEvaluation:

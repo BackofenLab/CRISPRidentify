@@ -1,19 +1,20 @@
 import math
 
-from components_non_array_computations import StrandComputation
-from components_non_array_computations import StrandComputationNew
-from components_non_array_computations import FullISElementSearch
-from components_non_array_computations import complete_info_with_cas_identifier
-from components_non_array_computations import FullLeaderSeqSearch
-from components_non_array_computations import RevComComputation
+from components.components_non_array_computations import StrandComputation
+from components.components_non_array_computations import StrandComputationNew
+from components.components_non_array_computations import FullISElementSearch
+from components.components_non_array_computations import complete_info_with_cas_identifier
+from components.components_non_array_computations import FullLeaderSeqSearch
+from components.components_non_array_computations import RevComComputation
 
 
 class NonArrayComputations:
-    def __init__(self, file_path, categories, flags_non_arrays_computations, flag_dev_mode):
+    def __init__(self, file_path, categories, flags_non_arrays_computations, flag_dev_mode, absolute_directory_path):
         self.file_path = file_path
         self.categories = categories
         self.flags_non_arrays_computations = flags_non_arrays_computations
         self.flag_dev_mode=flag_dev_mode
+        self.absolute_directory_path = absolute_directory_path
 
         self.list_of_crisprs_bona_fide = [self.categories[0][key][0][1] for key in sorted(self.categories[0].keys())]
         self.list_of_crisprs_alternative = [el[1] for key in self.categories[1].keys()
@@ -163,18 +164,24 @@ class NonArrayComputations:
     def _calculate_strand(self):
         if self.flags_non_arrays_computations["flag_strand"]:
             try:
-                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_bona_fide)
+                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_bona_fide,
+                                          absolute_directory_path=self.absolute_directory_path)
                 self.strand_results["Bona-fide"] = st.output()
-                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_alternative)
+                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_alternative,
+                                          absolute_directory_path=self.absolute_directory_path)
                 self.strand_results["Alternative"] = st.output()
-                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_possible)
+                st = StrandComputationNew(list_of_crisprs=self.list_of_crisprs_possible,
+                                          absolute_directory_path=self.absolute_directory_path)
                 self.strand_results["Possible"] = st.output()
             except Exception:
-                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_bona_fide)
+                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_bona_fide,
+                                       absolute_directory_path=self.absolute_directory_path)
                 self.strand_results["Bona-fide"] = st.output()
-                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_alternative)
+                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_alternative,
+                                       absolute_directory_path=self.absolute_directory_path)
                 self.strand_results["Alternative"] = st.output()
-                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_possible)
+                st = StrandComputation(list_of_crisprs=self.list_of_crisprs_possible,
+                                       absolute_directory_path=self.absolute_directory_path)
                 self.strand_results["Possible"] = st.output()
         else:
             self.strand_results["Bona-fide"] = {index: "Forward (Orientation was not computed)"

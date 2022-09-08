@@ -1,13 +1,13 @@
 import multiprocessing
 from multiprocessing import Pool
 
-from components_detection import VmatchRun
-from components_detection import ClusterMaker
-from components_detection import FilterApproximationClusters
-from components_detection import StartEndEnhancementClusters
-from components_detection import IntermediateEnhancementClusters
-from components_detection import ClusterSequence
-from components_detection import FuzzySearch
+from components.components_detection import VmatchRun
+from components.components_detection import ClusterMaker
+from components.components_detection import FilterApproximationClusters
+from components.components_detection import StartEndEnhancementClusters
+from components.components_detection import IntermediateEnhancementClusters
+from components.components_detection import ClusterSequence
+from components.components_detection import FuzzySearch
 
 
 class Detection:

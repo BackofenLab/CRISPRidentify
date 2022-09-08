@@ -4,7 +4,7 @@ from os import listdir
 from os.path import isfile, join
 import shutil
 
-from components_detection_refinement import CrisprCandidate
+from components.components_detection_refinement import CrisprCandidate
 
 #              Strand computation
 #######################################################
@@ -29,7 +29,7 @@ def to_rna(seq):
     return seq.replace("T", "U")
 
 
-def get_orientation(sequence):
+def get_orientation(sequence, absolute_directory_path):
     rev_comp = rev_compliment(sequence)
 
     orig_rna, rev_comp_rna = to_rna(sequence), to_rna(rev_comp)
@@ -40,7 +40,7 @@ def get_orientation(sequence):
     with open("reversed.txt", "w") as f:
         f.write(rev_comp_rna)
 
-    cmd = "tools/strand_prediction/EDeN -a TEST -i forward.txt -M 1 -r 3 -d 3 -f SEQUENCE -g" \
+    cmd = f"{absolute_directory_path}/tools/strand_prediction/EDeN -a TEST -i forward.txt -M 1 -r 3 -d 3 -f SEQUENCE -g" \
           " DIRECTED -m tools/strand_prediction/DR_Repeat_model"
 
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -48,7 +48,7 @@ def get_orientation(sequence):
     f = open("prediction", "r")
     val_in_plus = float((f.readline().split())[1])
     f.close()
-    cmd = "tools/strand_prediction/EDeN -a TEST -i reversed.txt -M 1 -r 3 -d 3 -f SEQUENCE -g" \
+    cmd = f"{absolute_directory_path}/tools/strand_prediction/EDeN -a TEST -i reversed.txt -M 1 -r 3 -d 3 -f SEQUENCE -g" \
           " DIRECTED -m tools/strand_prediction/DR_Repeat_model"
 
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -70,15 +70,16 @@ def get_orientation(sequence):
 
 
 class StrandComputationSingleCrispr:
-    def __init__(self, crispr_array):
+    def __init__(self, crispr_array, absolute_directory_path):
         self.crispr_array = crispr_array
+        self.absolute_directory_path = absolute_directory_path
         self.strand = None
 
         self._compute_strand()
 
     def _compute_strand(self):
         consensus = self.crispr_array.consensus
-        self.strand = get_orientation(consensus)
+        self.strand = get_orientation(consensus, self.absolute_directory_path)
         self.strand = "Forward" if self.strand else "Reversed"
 
     def output(self):
@@ -86,8 +87,9 @@ class StrandComputationSingleCrispr:
 
 
 class StrandComputation:
-    def __init__(self, list_of_crisprs):
+    def __init__(self, list_of_crisprs, absolute_directory_path):
         self.list_of_crisprs = list_of_crisprs
+        self.absolute_directory_path = absolute_directory_path
         self.dict_strands = {}
 
         self._compute_all_strands()
@@ -95,7 +97,7 @@ class StrandComputation:
     def _compute_all_strands(self):
         for index, crispr in enumerate(self.list_of_crisprs):
             consensus = crispr.consensus
-            strand = get_orientation(consensus)
+            strand = get_orientation(consensus, self.absolute_directory_path)
             strand = "Forward" if strand else "Reversed"
             self.dict_strands[index] = strand
 
@@ -104,8 +106,9 @@ class StrandComputation:
 
 
 class StrandComputationNew:
-    def __init__(self, list_of_crisprs):
+    def __init__(self, list_of_crisprs, absolute_directory_path):
         self.list_of_crisprs = list_of_crisprs
+        self.absolute_directory_path = absolute_directory_path
         self.dict_strands = {}
 
         self._compute_all_strands()
@@ -125,7 +128,7 @@ class StrandComputationNew:
             except Exception:
                 pass
 
-            cmd = "python tools/strand_prediction/CRISPRstrand/CRISPRstrand.py -r -i CRISPR_arrays_for_strand.fa --model_path tools/strand_prediction/CRISPRstrand/Models/model_r.h5 --output_folder ResultsStrand"
+            cmd = f"python {self.absolute_directory_path}/tools/strand_prediction/CRISPRstrand/CRISPRstrand.py -r -i CRISPR_arrays_for_strand.fa --model_path {self.absolute_directory_path}/tools/strand_prediction/CRISPRstrand/Models/model_r.h5 --output_folder ResultsStrand"
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             a, b = process.communicate()
             #print(a, b)
@@ -149,10 +152,10 @@ class StrandComputationNew:
 
 
 
-
 #      IS element computation
 ################################################
 ################################################
+
 
 class FastaMatch:
     def __init__(self, first_id, second_id, similarity, coverage):
@@ -162,7 +165,7 @@ class FastaMatch:
         self.coverage = coverage
 
 
-class FastaSimilarity(object):
+class FastaSimilarity():
     def __init__(self, list_sequences, similarity, coverage):
         self.list_sequences = list_sequences
         self.similarity = similarity

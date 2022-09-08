@@ -4,7 +4,7 @@ import json
 from os import listdir
 from os.path import basename
 from os.path import isfile, join
-from components_detection_refinement import CrisprCandidate
+from components.components_detection_refinement import CrisprCandidate
 
 
 def rev_compliment_seq(seq):

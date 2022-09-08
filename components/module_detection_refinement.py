@@ -1,6 +1,6 @@
-from components_detection_refinement import SameStartEndFilter
-from components_detection_refinement import AdvancedFuzzySearchFilter
-from components_detection_refinement import CrisprCandidate
+from components.components_detection_refinement import SameStartEndFilter
+from components.components_detection_refinement import AdvancedFuzzySearchFilter
+from components.components_detection_refinement import CrisprCandidate
 
 
 class DetectionRefinement:

@@ -5,9 +5,9 @@ import re
 import subprocess
 
 
-from components_eden import load
-from components_eden import fold as seq2graph
-from components_eden import kernel_matrix
+from components.components_eden import load
+from components.components_eden import fold as seq2graph
+from components.components_eden import kernel_matrix
 
 
 #        BULK FEATURE EXTRACTION

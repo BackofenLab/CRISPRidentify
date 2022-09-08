@@ -1,24 +1,20 @@
 import argparse
-import sys
+import math
+import shutil
+import warnings
+import os
+
 from os import listdir
 from os.path import isfile, join
-import os
-from joblib import dump, load
 from time import time
-import multiprocessing
-import subprocess
-import warnings
-warnings.filterwarnings("ignore")
-sys.path.insert(0, 'components/')
-from pipeline import Pipeline
-from components_ml import ClassifierWrapper
-import shutil
-from time import time
-import math
-from components_output_maker import CompleteFastaOutputMaker
-from components_output_maker import CompleteFolderSummaryMaker
-from components_output_maker import CompleteCasSummaryFolderMaker
 
+from components.pipeline import Pipeline
+from components.components_ml import ClassifierWrapper
+from components.components_output_maker import CompleteFastaOutputMaker
+from components.components_output_maker import CompleteFolderSummaryMaker
+from components.components_output_maker import CompleteCasSummaryFolderMaker
+
+warnings.filterwarnings("ignore")
 
 FLAG_DEVELOPER_MODE = False
 
@@ -176,9 +172,11 @@ best_combinations = {
     "10": (0, 2, 3, 4, 5, 6, 7, 10, 11, 12)
 }
 
+script_absolute_path = os.path.dirname(os.path.abspath(__file__))
+
 feature_list = ['.'.join([ALL_FEATURES[i] for i in best_combinations[model]]) for model in list_models]
 list_ml_classifiers = [ClassifierWrapper(classifier_type=None,
-                                         load_option="trained_models/extra_trees/extra_trees_subset{}features.pkl".
+                                         load_option=script_absolute_path + "/trained_models/extra_trees/extra_trees_subset{}features.pkl".
                                                      format(model))
                        for model in list_models]
 
@@ -213,7 +211,8 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
                       list_features=feature_list,
                       parameters=parameters,
                       flags=flags,
-                      flag_dev_mode=FLAG_DEVELOPER_MODE)
+                      flag_dev_mode=FLAG_DEVELOPER_MODE,
+                      absolute_directory_path=script_absolute_path)
 
     cfsm = CompleteFolderSummaryMaker(folder_result=result_folder)
     ccfsm = CompleteCasSummaryFolderMaker(folder_result=result_folder)
@@ -230,7 +229,8 @@ def run_over_one_file(file, result_folder, pickle_folder, json_folder):
                   list_features=feature_list,
                   parameters=parameters,
                   flags=flags,
-                  flag_dev_mode=FLAG_DEVELOPER_MODE)
+                  flag_dev_mode=FLAG_DEVELOPER_MODE,
+                  absolute_folder_path=script_absolute_path)
 
 
 def multiline_fasta_check(file):

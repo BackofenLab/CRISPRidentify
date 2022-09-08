@@ -7,8 +7,6 @@ from os.path import isfile
 import regex
 
 
-
-
 V_Repeat = namedtuple('V_Repeat', 'begin_first, begin_second, length, sequence')
 ClusterSequence = namedtuple("ClusterSequence", "sequence, start, end, tuple_repeats")
 

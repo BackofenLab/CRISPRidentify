@@ -1,14 +1,14 @@
-from module_detection import Detection
-from module_detection_refinement import DetectionRefinement
-from module_evaluation import ArrayEvaluation
-from module_evaluated_arrays_enhancement import EvaluatedArraysEnhancement
-from module_non_array_computations import NonArrayComputations
-from module_output_maker import OutputMaker
+from components.module_detection import Detection
+from components.module_detection_refinement import DetectionRefinement
+from components.module_evaluation import ArrayEvaluation
+from components.module_evaluated_arrays_enhancement import EvaluatedArraysEnhancement
+from components.module_non_array_computations import NonArrayComputations
+from components.module_output_maker import OutputMaker
 
 
 class Pipeline:
-    def __init__(self, result_folder_path, pickle_folder_path,json_folder_path, file_path,
-                 list_ml_classifiers, list_features, parameters, flags, flag_dev_mode):
+    def __init__(self, result_folder_path, pickle_folder_path, json_folder_path, file_path,
+                 list_ml_classifiers, list_features, parameters, flags, flag_dev_mode, absolute_directory_path):
         self.result_folder_path = result_folder_path + "/" + file_path.split("/")[-1].split(".")[0]
         self.pickle_folder_path = pickle_folder_path
         self.json_folder_path = json_folder_path
@@ -18,6 +18,7 @@ class Pipeline:
         self.flags = flags
         self.parameters = parameters
         self.flag_dev_mode = flag_dev_mode
+        self.absolute_directory_path = absolute_directory_path
 
         self.header = None
         self.dict_fuzzy_crisprs = {}
@@ -60,6 +61,7 @@ class Pipeline:
                              parameters=self.parameters,
                              flag_dev_mode=self.flag_dev_mode)
         self.categories = ae.output()
+
     def _results_enhancement(self):
         print("4. Enhance evaluated arrays")
         a_enh = EvaluatedArraysEnhancement(file_path=self.file_path,
@@ -73,7 +75,8 @@ class Pipeline:
         nac = NonArrayComputations(file_path=self.file_path,
                                    categories=self.categories,
                                    flags_non_arrays_computations=self.flags,
-                                   flag_dev_mode=self.flag_dev_mode)
+                                   flag_dev_mode=self.flag_dev_mode,
+                                   absolute_directory_path=self.absolute_directory_path)
         self.non_array_data = nac.output()
 
     def _write_output(self):
@@ -88,9 +91,3 @@ class Pipeline:
                          non_array_data=self.non_array_data,
                          list_features=self.list_features,
                          header=self.header)
-
-
-
-
-
-

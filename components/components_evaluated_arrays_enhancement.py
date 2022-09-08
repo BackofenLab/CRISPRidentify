@@ -1,6 +1,6 @@
 import regex
 
-from components_detection_refinement import CrisprCandidate
+from components.components_detection_refinement import CrisprCandidate
 
 
 class IterativeDegeneratedSearch:
