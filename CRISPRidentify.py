@@ -4,6 +4,7 @@ import shutil
 import warnings
 import os
 
+from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 from time import time
@@ -98,14 +99,32 @@ parser.add_argument('--max_edit_distance_enhanced', type=int, default=6,
                     help='maximum edit distance for the evaluated array enhancement (default: 6)')
 
 
-
+script_absolute_path = os.path.dirname(os.path.abspath(__file__))
+work_directory = os.getcwd()
+pid = os.getpid()
 
 args = parser.parse_args()
-complete_path_folder = args.input_folder
+
+complete_path_folder = (args.input_folder)
+if complete_path_folder:
+    complete_path_folder = Path(complete_path_folder).absolute()
+
 complete_path_file = args.file
+if complete_path_file:
+    complete_path_file = Path(complete_path_file).absolute()
+
 folder_result = args.result_folder
+if folder_result:
+    folder_result = Path(folder_result).absolute()
+
 pickle_folder = args.pickle_report
+if pickle_folder:
+    pickle_folder = Path(pickle_folder).absolute()
+
 json_folder = args.json_report
+if json_folder:
+    json_folder = Path(json_folder).absolute()
+
 list_models = ["8", "9", "10"] if args.model == "ALL" else [args.model]
 flag_possible_differentiate_model = args.additional_model
 if flag_possible_differentiate_model not in ["possible", "all"]:
@@ -172,7 +191,12 @@ best_combinations = {
     "10": (0, 2, 3, 4, 5, 6, 7, 10, 11, 12)
 }
 
-script_absolute_path = os.path.dirname(os.path.abspath(__file__))
+
+pid_work_directory = os.path.join(work_directory, str(pid))
+if not os.path.exists(pid_work_directory):
+    os.makedirs(pid_work_directory)
+    os.chdir(pid_work_directory)
+
 
 feature_list = ['.'.join([ALL_FEATURES[i] for i in best_combinations[model]]) for model in list_models]
 list_ml_classifiers = [ClassifierWrapper(classifier_type=None,
@@ -230,7 +254,7 @@ def run_over_one_file(file, result_folder, pickle_folder, json_folder):
                   parameters=parameters,
                   flags=flags,
                   flag_dev_mode=FLAG_DEVELOPER_MODE,
-                  absolute_folder_path=script_absolute_path)
+                  absolute_directory_path=script_absolute_path)
 
 
 def multiline_fasta_check(file):
@@ -281,3 +305,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    try:
+        os.remove(pid_work_directory)
+    except OSError:
+        pass
