@@ -1037,6 +1037,28 @@ class CompleteFastaOutputMaker:
                             fa.write(sequence)
 
 
+class CompleteJsonOutputMaker:
+    def __init__(self, folder_json_result, folder_text_tesult):
+        self.folder_json_result = folder_json_result
+        self.folder_text_result = folder_text_tesult
+
+        self._make_complete_json_summary()
+
+    def _make_complete_json_summary(self):
+        json_files_in_folder = [join(self.folder_json_result, file) for file in listdir(self.folder_json_result)
+                                if isfile(join(self.folder_json_result, file)) and file.endswith(".json")]
+
+        complete_json = {}
+        for json_file in json_files_in_folder:
+            with open(json_file) as f:
+                json_data = json.load(f)
+                file_name = json_file.split("/")[-1].split(".")[0]
+                complete_json[file_name] = json_data
+
+        with open(join(self.folder_text_result, "Complete_json_summary.json"), "w") as f:
+            json.dump(complete_json, f, indent=4)
+
+
 
 
 

@@ -14,6 +14,7 @@ from components.components_ml import ClassifierWrapper
 from components.components_output_maker import CompleteFastaOutputMaker
 from components.components_output_maker import CompleteFolderSummaryMaker
 from components.components_output_maker import CompleteCasSummaryFolderMaker
+from components.components_output_maker import CompleteJsonOutputMaker
 
 warnings.filterwarnings("ignore")
 
@@ -192,7 +193,7 @@ best_combinations = {
 }
 
 
-pid_work_directory = os.path.join(work_directory, str(pid))
+pid_work_directory = os.path.join(work_directory, 'Identify_Temp' + str(pid))
 if not os.path.exists(pid_work_directory):
     os.makedirs(pid_work_directory)
     os.chdir(pid_work_directory)
@@ -241,6 +242,8 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
     cfsm = CompleteFolderSummaryMaker(folder_result=result_folder)
     ccfsm = CompleteCasSummaryFolderMaker(folder_result=result_folder)
     cfom = CompleteFastaOutputMaker(folder_result=result_folder)
+    if json_folder:
+        cjsm = CompleteJsonOutputMaker(folder_json_result=json_folder, folder_text_tesult=result_folder)
 
 
 def run_over_one_file(file, result_folder, pickle_folder, json_folder):
@@ -305,7 +308,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    try:
-        os.remove(pid_work_directory)
-    except OSError:
-        pass
+    shutil.rmtree(pid_work_directory)
+

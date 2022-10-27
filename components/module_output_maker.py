@@ -58,7 +58,6 @@ class OutputMaker:
 
             #cfom = CompleteFastaOutputMaker(folder_result=self.global_result_folder)
 
-
         if self.pickle_result_path:
             pom = PickleOutputMaker(file_path=self.file_path,
                                     pickle_result_folder=self.pickle_result_path,
