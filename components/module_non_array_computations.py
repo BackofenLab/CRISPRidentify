@@ -147,7 +147,8 @@ class NonArrayComputations:
                         break
             return dict_cas_gene_order_for_separated
 
-        dict_cas_genes = complete_info_with_cas_identifier(self.file_path)
+        dict_cas_genes = complete_info_with_cas_identifier(self.file_path,
+                                                           absolute_directory_path=self.absolute_directory_path)
         self.unstructured_cas_result_from_cas_identifier = dict_cas_genes
 
         intervals = _get_crispr_intervals()

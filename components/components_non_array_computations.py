@@ -433,10 +433,10 @@ def cas_identifier_result_folder_parser(folder_path):
     return dict_cas_proteins
 
 
-def run_cas_identifier(file_name):
+def run_cas_identifier(file_name, absolute_directory_path):
     try:
-        cmd1 = "mkdir output_cas"
-        cmd2 = "mkdir output_cas/cassette"
+        cmd1 = f"mkdir {absolute_directory_path}/output_cas"
+        cmd2 = f"mkdir {absolute_directory_path}/output_cas/cassette"
         process = subprocess.Popen(cmd1, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
@@ -446,19 +446,19 @@ def run_cas_identifier(file_name):
         pass
 
     try:
-        cmd = "mkdir output"
+        cmd = f"mkdir {absolute_directory_path}output"
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
     except Exception:
         pass
 
-    command = f"python tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py -f {file_name} -ho output_cas/hmmsearch -st dna -co output_cas/cassette"
+    command = f"python {absolute_directory_path}/tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py -f {file_name} -ho output_cas/hmmsearch -st dna -co output_cas/cassette"
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     a, b = process.communicate()
 
 
-def complete_info_with_cas_identifier(file_name):
-    run_cas_identifier(file_name)
+def complete_info_with_cas_identifier(file_name, absolute_directory_path):
+    run_cas_identifier(file_name, absolute_directory_path)
     dict_cas = cas_identifier_result_folder_parser("output_cas/cassette")
     try:
         shutil.rmtree("output_cas")
