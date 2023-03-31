@@ -1,7 +1,7 @@
 import operator
 import numpy as np
 import sklearn
-from sklearn.externals import joblib
+import joblib
 
 
 class ClassifierWrapper(object):
