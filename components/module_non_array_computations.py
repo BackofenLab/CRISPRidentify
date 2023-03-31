@@ -26,6 +26,7 @@ class NonArrayComputations:
 
         self.is_element_result = {}
         self.cas_results = {}
+        self.cassete_results = {}
         self.unstructured_cas_result_from_cas_identifier = {}
         self.strand_results = {}
         self.leader_results = {}
@@ -58,7 +59,8 @@ class NonArrayComputations:
                                            "Strand": self.strand_results,
                                            "Leader": [self.leader_results_bona_fide, self.leader_results_alternative, self.leader_results_possible],
                                            "Downstream": [self.downstream_results_bona_fide, self.downstream_results_alternative, self.downstream_results_possible],
-                                           "Unstructured_Cas":self.unstructured_cas_result_from_cas_identifier}
+                                           "Unstructured_Cas":self.unstructured_cas_result_from_cas_identifier,
+                                           "Cassettes": self.cassete_results}
 
     def _calculate_is_elements(self):
         fies = FullISElementSearch(full_dna=self.dna, list_of_crisprs=self.list_of_crisprs_bona_fide,
@@ -147,8 +149,10 @@ class NonArrayComputations:
                         break
             return dict_cas_gene_order_for_separated
 
-        dict_cas_genes = complete_info_with_cas_identifier(self.file_path,
-                                                           absolute_directory_path=self.absolute_directory_path)
+        dict_cas_genes, dict_cassete_labels = complete_info_with_cas_identifier(self.file_path,
+                                                                                self.absolute_directory_path)
+
+        self.cassete_results = dict_cassete_labels
         self.unstructured_cas_result_from_cas_identifier = dict_cas_genes
 
         intervals = _get_crispr_intervals()
@@ -161,6 +165,7 @@ class NonArrayComputations:
         #dict_groups_separated = _group_by_output_separated(allowed_intervals, clustered_cas_genes)
 
         self.cas_results = dict_groups
+
 
     def _calculate_strand(self):
         if self.flags_non_arrays_computations["flag_strand"]:

@@ -3,6 +3,7 @@ import subprocess
 from os import listdir
 from os.path import isfile, join
 import shutil
+import csv
 
 from components.components_detection_refinement import CrisprCandidate
 
@@ -433,61 +434,129 @@ def cas_identifier_result_folder_parser(folder_path):
     return dict_cas_proteins
 
 
+def cas_identifier_cassete_csv_parser(file_path):
+    cassette_dict = {}
+    with open(file_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        next(csv_reader)  # skip header row
+        for row in csv_reader:
+            cassette_id = int(row[6])
+            start = int(row[1])
+            end = int(row[2])
+            if cassette_id not in cassette_dict:
+                cassette_dict[cassette_id] = (start, end)
+            else:
+                current_start, current_end = cassette_dict[cassette_id]
+                cassette_dict[cassette_id] = (min(current_start, start), max(current_end, end))
+    return cassette_dict
+
+
+def cas_identifier_read_predicted_labels(file_path):
+    dict_predicted_labels = {}
+    with open(file_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        next(csv_reader)  # skip header row
+        for row in csv_reader:
+            cassette_id = int(row[1])
+            predicted_label = row[4]
+            dict_predicted_labels[cassette_id] = predicted_label
+    return dict_predicted_labels
+
+
+def cas_identifier_combine_dicts(cassette_dict, predicted_labels):
+    combined_dict = {}
+    for cassette_id in cassette_dict:
+        if cassette_id in predicted_labels:
+            start, end = cassette_dict[cassette_id]
+            label = predicted_labels[cassette_id]
+            combined_dict[cassette_id] = (start, end, label)
+    return combined_dict
+
+
 def run_cas_identifier(file_name, absolute_directory_path):
     try:
-        cmd1 = f"mkdir {absolute_directory_path}/output_cas"
-        cmd2 = f"mkdir {absolute_directory_path}/output_cas/cassette"
+        #cmd1 = f"mkdir {absolute_directory_path}/output_cas"
+        #cmd2 = f"mkdir {absolute_directory_path}/output_cas/cassette"
+
+        cmd1 = f"mkdir output_cas"
+        cmd2 = f"mkdir output_cas/cassette"
+
         process = subprocess.Popen(cmd1, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
 
         process = subprocess.Popen(cmd2, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
+
     except Exception:
         pass
 
     try:
-        cmd = f"mkdir {absolute_directory_path}output"
+        #cmd = f"mkdir {absolute_directory_path}/output"
+        cmd = f"mkdir output"
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
     except Exception:
         pass
 
     command = f"python {absolute_directory_path}/tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py -f {file_name} -ho output_cas/hmmsearch -st dna -co output_cas/cassette"
+    #print(command)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     a, b = process.communicate()
+    #print(a, b)
+
+    directory_path = os.path.dirname(file_name)
+    log_file_name_log = os.path.splitext(os.path.basename(file_name))[0] + "_prodigal.log"
+    log_file_path_log = os.path.join(directory_path, log_file_name_log)
+
+    log_file_name_fa = os.path.splitext(os.path.basename(file_name))[0] + "_proteins.fa"
+    log_file_path_fa = os.path.join(directory_path, log_file_name_fa)
+
+    #print(log_file_path_log)
+    #print(log_file_path_fa)
+
+    #folder = "/".join(file_name.split("/")[:-1])
+    #file_base = file_name.split("/")[-1].split(".")[0]
+    #log_prodigal_file = file_base + "_prodigal.log"
+    #prodigal_prots = file_base + "_proteins.fa"
+    #full_path_log = join(folder, log_prodigal_file)
+    #full_path_prots = join(folder, prodigal_prots)
+
+    try:
+        os.remove(log_file_path_log)
+    except Exception:
+        pass
+
+    try:
+        os.remove(log_file_path_fa)
+    except Exception:
+        pass
 
 
 def complete_info_with_cas_identifier(file_name, absolute_directory_path):
     run_cas_identifier(file_name, absolute_directory_path)
-    dict_cas = cas_identifier_result_folder_parser("output_cas/cassette")
+    #cas_path = f"{absolute_directory_path}/output_cas/cassette"
+    #cas_path_short = f"{absolute_directory_path}/output_cas/"
+
+    cas_path = f"output_cas/cassette"
+    cas_path_short = f"output_cas/"
+
+    dict_cas = cas_identifier_result_folder_parser(cas_path)
+    dict_casette_classes = cas_identifier_read_predicted_labels("output/predictions.csv")
+    dict_cassete_intervals = cas_identifier_cassete_csv_parser(f"{cas_path}/HMM2019_cassettes.csv")
+    dict_casete_start_end_class = cas_identifier_combine_dicts(dict_cassete_intervals, dict_casette_classes)
     try:
-        shutil.rmtree("output_cas")
+        shutil.rmtree(cas_path)
     except Exception:
         pass
 
     try:
-        shutil.rmtree("output")
+        shutil.rmtree(cas_path_short)
     except Exception:
         pass
 
-    folder = "/".join(file_name.split("/")[:-1])
-    file_base = file_name.split("/")[-1].split(".")[0]
-    log_prodigal_file = file_base + "_prodigal.log"
-    prodigal_prots = file_base + "_proteins.fa"
-    full_path_log = join(folder, log_prodigal_file)
-    full_path_prots = join(folder, prodigal_prots)
 
-    try:
-        os.remove(full_path_log)
-    except Exception:
-        pass
 
-    try:
-        os.remove(full_path_prots)
-    except Exception:
-        pass
-
-    return dict_cas
+    return dict_cas, dict_casete_start_end_class
 
 
 #        Leader seq search

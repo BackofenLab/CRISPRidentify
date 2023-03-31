@@ -875,6 +875,7 @@ class CasSummaryMaker:
         self.non_array_data = non_array_data
 
         self._write_cas_summary()
+        self._write_cassete_summary()
 
     def _write_cas_summary(self):
         dict_unstructured_cas = self.non_array_data["Unstructured_Cas"]
@@ -892,6 +893,19 @@ class CasSummaryMaker:
                     f.write(line)
                     counter += 1
 
+    def _write_cassete_summary(self):
+        dict_cassette = self.non_array_data["Cassettes"]
+        if dict_cassette:
+            result_csv_path = join(self.result_path, 'Cassette_Summary.csv')
+            with open(result_csv_path, "w") as f:
+                f.write(",".join(["ID", "Start", "End", "Length", "Cassete type"]))
+                f.write("\n")
+                for cassete_id, (start, end, cassete_type) in dict_cassette.items():
+                    start, end = int(start), int(end)
+                    length = end - start + 1
+                    line = ",".join([str(x) for x in [cassete_id, start, end, length, cassete_type]]) + "\n"
+                    f.write(line)
+
 
 class CompleteCasSummaryFolderMaker:
     def __init__(self, folder_result):
@@ -899,6 +913,7 @@ class CompleteCasSummaryFolderMaker:
 
         self._list_sub_folders_()
         self._make_complete_summary()
+        self._make_complete_summary_cassete()
 
     def _list_sub_folders_(self):
         self.sub_folders = [folder for folder in listdir(self.folder_result)
@@ -929,6 +944,32 @@ class CompleteCasSummaryFolderMaker:
 
             if not flag_found_cas:
                 f.write("No cas proteins found")
+
+    def _make_complete_summary_cassete(self):
+        summary_path = join(self.folder_result, "Complete_Cassette_summary.csv")
+        global_counter = 1
+        flag_header = False
+        flag_found_cassette = False
+        with open(summary_path, "w") as f:
+            for sub_folder_index, sub_folder in enumerate(self.sub_folders):
+                complete_path = join(self.folder_result, sub_folder, "Cassette_Summary.csv")
+                if os.path.exists(complete_path):
+                    flag_found_cassette = True
+                    with open(complete_path) as fr:
+                        lines = fr.readlines()
+                    if not flag_header:
+                        header = lines[0]
+                        header = "Name,Global ID," + header
+                        f.write(header)
+                        flag_header = True
+
+                    for line in lines[1:]:
+                        new_line = sub_folder.strip() + "," + str(global_counter) + "," + line
+                        global_counter += 1
+                        f.write(new_line)
+
+            if not flag_found_cassette:
+                f.write("No cassette found")
 
 
 class FastaOutputArrayMaker:

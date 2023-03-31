@@ -17,6 +17,7 @@ from components.components_output_maker import CompleteCasSummaryFolderMaker
 from components.components_output_maker import CompleteJsonOutputMaker
 
 warnings.filterwarnings("ignore")
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 FLAG_DEVELOPER_MODE = False
 
@@ -308,5 +309,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    shutil.rmtree(pid_work_directory)
+    shutil.rmtree(pid_work_directory, ignore_errors=True)
 
