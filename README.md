@@ -130,7 +130,19 @@ For example:
 ```
 python CRISPRidentify.py --file InputFile
 ```
+##### Input as a folder of multiline fasta files
 
+* `-- input_folder_multifasta <path_to_the_folder>`
+
+Specifies the mode where a folder with fasta files which will be used as the input for CRISPRidentify. The CRISPR array search will be
+then conducted separately for each file in the corresponding input folder. The difference between this mode and the previous one is that
+in this mode the input files can contain multiple entries.
+
+For example:
+
+```
+python CRISPRidentify.py --input_folder_multifasta TestFolderMultiline
+```
 
 #### Optional flags
 

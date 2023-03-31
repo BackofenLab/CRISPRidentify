@@ -15,6 +15,8 @@ from components.components_output_maker import CompleteFastaOutputMaker
 from components.components_output_maker import CompleteFolderSummaryMaker
 from components.components_output_maker import CompleteCasSummaryFolderMaker
 from components.components_output_maker import CompleteJsonOutputMaker
+from components.components_helpers import multiline_fasta_check, multiline_fasta_handle, multiline_fasta_handle_python
+from components.components_helpers import folder_of_multifasta_handle
 
 warnings.filterwarnings("ignore")
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -27,6 +29,9 @@ parser.add_argument('--input_folder', type=str, default=None,
 
 parser.add_argument('--file', type=str, default=None,
                     help='input file (default: None)')
+
+parser.add_argument('--input_folder_multifasta', type=str, default=None,
+                    help='input folder of multifasta (default: None)')
 
 parser.add_argument('--model', type=str, default="ALL",
                     help='model_to_use (default: ALL)')
@@ -114,6 +119,10 @@ if complete_path_folder:
 complete_path_file = args.file
 if complete_path_file:
     complete_path_file = Path(complete_path_file).absolute()
+
+complete_folder_multifasta = args.input_folder_multifasta
+if complete_folder_multifasta:
+    complete_folder_multifasta = Path(complete_folder_multifasta).absolute()
 
 folder_result = args.result_folder
 if folder_result:
@@ -261,38 +270,13 @@ def run_over_one_file(file, result_folder, pickle_folder, json_folder):
                   absolute_directory_path=script_absolute_path)
 
 
-def multiline_fasta_check(file):
-    with open(file, "r") as f:
-        lines = f.readlines()
-    number_of_inputs = sum([1 for line in lines if ">" in line])
-    return number_of_inputs != 1
-
-
-def multiline_fasta_handle(file):
-    base_name = str(os.path.basename(file).split(".")[0])
-    try:
-        os.mkdir(base_name)
-    except OSError:
-        pass
-
-    cmd = f"cat {file}"
-    cmd += " | awk '{ if (substr($0, 1, 1)==\">\") {"
-    cmd += "filename=(\"{}/\"".format(base_name)
-    cmd += "substr($0,2)\".fa\")} "
-    cmd += f"print $0 > filename "
-    cmd += "}'"
-
-    os.system(cmd)
-
-    return base_name
-
 
 def main():
     start_time = time()
     if complete_path_file:
         if multiline_fasta_check(complete_path_file):
             print("Multifasta")
-            folder_multifasta = multiline_fasta_handle(complete_path_file)
+            folder_multifasta = multiline_fasta_handle_python(complete_path_file)
             print(folder_multifasta)
             run_over_folder_of_files(folder_multifasta, folder_result, pickle_folder, json_folder)
             shutil.rmtree(folder_multifasta)
@@ -300,6 +284,10 @@ def main():
             run_over_one_file(complete_path_file, folder_result, pickle_folder, json_folder)
     elif complete_path_folder:
         run_over_folder_of_files(complete_path_folder, folder_result, pickle_folder, json_folder)
+    elif complete_folder_multifasta:
+        print("Folder Multifasta")
+        folder_multifasta = folder_of_multifasta_handle(complete_folder_multifasta)
+        run_over_folder_of_files(folder_multifasta, folder_result, pickle_folder, json_folder)
     else:
         print("No input was provided")
 
