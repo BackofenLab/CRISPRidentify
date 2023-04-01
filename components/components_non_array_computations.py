@@ -436,30 +436,32 @@ def cas_identifier_result_folder_parser(folder_path):
 
 def cas_identifier_cassete_csv_parser(file_path):
     cassette_dict = {}
-    with open(file_path) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        next(csv_reader)  # skip header row
-        for row in csv_reader:
-            cassette_id = int(row[6])
-            start = int(row[1])
-            end = int(row[2])
-            if cassette_id not in cassette_dict:
-                cassette_dict[cassette_id] = (start, end)
-            else:
-                current_start, current_end = cassette_dict[cassette_id]
-                cassette_dict[cassette_id] = (min(current_start, start), max(current_end, end))
+    if isfile(file_path):
+        with open(file_path) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)  # skip header row
+            for row in csv_reader:
+                cassette_id = int(row[6])
+                start = int(row[1])
+                end = int(row[2])
+                if cassette_id not in cassette_dict:
+                    cassette_dict[cassette_id] = (start, end)
+                else:
+                    current_start, current_end = cassette_dict[cassette_id]
+                    cassette_dict[cassette_id] = (min(current_start, start), max(current_end, end))
     return cassette_dict
 
 
 def cas_identifier_read_predicted_labels(file_path):
     dict_predicted_labels = {}
-    with open(file_path) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        next(csv_reader)  # skip header row
-        for row in csv_reader:
-            cassette_id = int(row[1])
-            predicted_label = row[4]
-            dict_predicted_labels[cassette_id] = predicted_label
+    if isfile(file_path):
+        with open(file_path) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)  # skip header row
+            for row in csv_reader:
+                cassette_id = int(row[1])
+                predicted_label = row[4]
+                dict_predicted_labels[cassette_id] = predicted_label
     return dict_predicted_labels
 
 
