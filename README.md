@@ -36,13 +36,27 @@ Then Miniconda should be installed. On a linux machine the command is similar to
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
-Then we create an environment. The necessary setup is provided in the "environment.yml" file inside the "for_environment" directory
+Then we create an environment. The necessary setup is provided in the "environment.yml" file.
 
-In order to install the corresponding environment one can execute the following command from the "for_environment" directory
+In order to install the corresponding environment one can execute the following command.
 
 ```
 conda env create -f environment.yml
 ```
+
+We recommend to install mamba package manager which is a faster alternative to conda.
+
+```
+conda install -c conda-forge mamba
+```
+
+Then we can create the environment using mamba.
+```
+mamba env create -f environment.yml
+```
+
+<sub><sub>We want to acknowledge Richard Stöckl @richardstoeckl for his contribution to the environment.yml file.</sub></sub>
+
 
 ### Additional preparations
 
