@@ -119,10 +119,13 @@ class StrandComputationNew:
             with open("CRISPR_arrays_for_strand.fa", "w") as f:
                 for array_index, array in enumerate(self.list_of_crisprs, 1):
                     consensus = array.consensus
-                    f.write(f">CRISPR_{array_index}_consensus\n{consensus}\n")
+                    consensus_fidex_alphabet = self.remove_non_canonical_char_from_string(consensus)
+                    f.write(f">CRISPR_{array_index}_consensus\n{consensus_fidex_alphabet}\n")
 
                 if len(self.list_of_crisprs) == 2:
-                    f.write(f">CRISPR_3_consensus\n{self.list_of_crisprs[-1].consensus}\n")
+                    consensus = self.list_of_crisprs[-1].consensus
+                    consensus_fidex_alphabet = self.remove_non_canonical_char_from_string(consensus)
+                    f.write(f">CRISPR_3_consensus\n{consensus_fidex_alphabet}\n")
 
             try:
                 os.mkdir("ResultsStrand")
@@ -133,7 +136,7 @@ class StrandComputationNew:
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             a, b = process.communicate()
             #print(a, b)
-            os.remove("CRISPR_arrays_for_strand.fa")
+            #os.remove("CRISPR_arrays_for_strand.fa")
 
             with open("ResultsStrand/CRISPRstrand_Summary.tsv", "r") as f:
                 lines = f.readlines()
@@ -147,6 +150,17 @@ class StrandComputationNew:
                 shutil.rmtree("ResultsStrand")
             except Exception:
                 pass
+
+    @staticmethod
+    def remove_non_canonical_char_from_string(consensus_string):
+        canonical_chars = ["A", "T", "G", "C"]
+        new_consensus_string = ""
+        for char in consensus_string:
+            if char in canonical_chars:
+                new_consensus_string += char
+            else:
+                new_consensus_string += "N"
+        return new_consensus_string
 
     def output(self):
         return self.dict_strands
