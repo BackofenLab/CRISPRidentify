@@ -1,26 +1,25 @@
 name: crispr_identify_env
 channels:
-  - anaconda
   - conda-forge
   - bioconda
-  - defaults
+  - nodefaults
   - biobuilds
-  - bioconda/label/cf201901
   - r
 dependencies:
-  - anaconda::_tflow_select=2.3.0
+  - python==3.7.6
+  - python_abi=3.7
   - biopython=1.76
   - h5py=2.10.0
   - hdf5=1.10.6
   - hmmer=3.3
-  - numpy=1.18.1
+  - numpy==1.18.1
   - pandas=1.0.3
   - matplotlib=3.1.3
   - perl=5.26.2
   - perl-compress-bgzf=0.005
   - perl-threaded=5.26.0
   - perl-yaml=1.29
-  - prodigal=2.6.3
+  - prodigal==2.6.3
   - dill=0.3.3
   - protobuf=3.13.0.1
   - regex=2019.03.09
@@ -32,20 +31,18 @@ dependencies:
   - pyqt=5.9.2
   - pysocks=1.7.1
   - python-dateutil=2.8.1
-  - python_abi=3.7
   - pytz=2020.1
   - pyyaml=5.3.1
-  - scikit-learn=0.22.1
+  - scikit-learn==0.22.1
   - scipy=1.4.1
-  - anaconda::tensorboard=2.3.0
-  - anaconda::tensorboard-plugin-wit=1.6.0
-  - viennarna=2.4.15
+  - anaconda::tensorflow==2.3.0
+  - tensorboard==2.3.0
+  - tensorboard-plugin-wit==1.6.0
+  - viennarna==2.4.15
   - pyopenssl=22.0.0
   - certifi=2022.12.7
-  - vmatch=2.3.0
-  - clustalo=1.2.3
-  - blast=2.5.0
-  - numpy=1.18.1
-  - keras=2.4.3
-  - anaconda::tensorflow=2.3.0
-  - libffi=3.3
+  - vmatch==2.3.0
+  - clustalo==1.2.3
+  - blast==2.5.0
+  - keras==2.4.3
+  - libffi=3.2.1
