@@ -9,6 +9,7 @@ from components.components_output_maker import JsonOutputMaker
 from components.components_output_maker import CompleteFastaOutputMaker
 from components.components_output_maker import CompleteFolderSummaryMaker
 from components.components_output_maker import CompleteCasSummaryFolderMaker
+from components.components_output_maker import SpacerSummaryMaker
 
 
 class OutputMaker:
@@ -39,6 +40,9 @@ class OutputMaker:
                                   non_array_data=self.non_array_data,
                                   header=self.header,
                                   list_feature_names=self.list_features)
+
+        ssm = SpacerSummaryMaker(categories=self.categories,
+                                result_path=self.result_path)
 
         sm_csv = SummaryMakerCSV(result_path=self.result_path,
                                  categories=self.categories,

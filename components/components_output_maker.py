@@ -386,6 +386,40 @@ class PickleOutputMaker:
         pickle.dump(self.categories, open(self.pickle_result_folder + '/' + acc_num + '.pkl', "wb"))
 
 
+class SpacerSummaryMaker:
+    def __init__(self, result_path, categories):
+        """
+        Initializes the SpacerSummaryMaker class.
+
+        :param result_path: Path where the FASTA file will be saved.
+        :param categories: Dictionary containing categorized CRISPR arrays.
+        """
+        self.result_path = result_path
+        self.categories = categories
+
+        self._write_fasta_summary()
+
+    def _write_fasta_summary(self):
+        """
+        Writes the spacer sequences to a FASTA file.
+        """
+        fasta_path = f"{self.result_path}/Spacers.fasta"
+
+        with open(fasta_path, "w") as fasta_file:
+            for category_index, category_name in zip(range(len(self.categories)), ["Bona-fide", "Alternative", "Possible"]):
+                for key, crisprs in self.categories[category_index].items():
+                    for crispr in crisprs:
+                        consensus = crispr[1].consensus
+                        start = crispr[1].compute_stats()["start"]
+                        end = crispr[1].compute_stats()["end"]
+                        spacers = " ".join(crispr[1].list_spacers)
+
+                        # Write the FASTA header and sequence
+                        fasta_header = f"> {category_name}_{start}_{end}_{consensus}"
+                        fasta_file.write(f"{fasta_header}\n")
+                        fasta_file.write(f"{spacers}\n")
+
+
 class JsonOutputMaker:
     def __init__(self, file_path, json_result_folder, categories, non_array_data, list_feature_names):
         self.file_path = file_path
@@ -867,6 +901,57 @@ class CompleteFolderSummaryMaker:
 
             if not flag_found_arrays:
                 f.write("No arrays found")
+
+
+class CompleteSpacerSummaryMaker:
+    def __init__(self, folder_result):
+        """
+        Initializes the CompleteSpacerSummaryMaker class.
+
+        :param folder_result: The path to the folder containing subfolders with spacer summaries.
+        """
+        self.folder_result = folder_result
+
+        self._list_sub_folders()
+        self._make_complete_spacer_summary()
+
+    def _list_sub_folders(self):
+        """
+        Lists all subfolders in the folder_result directory.
+        """
+        self.sub_folders = [
+            folder for folder in listdir(self.folder_result)
+            if not isfile(join(self.folder_result, folder))
+        ]
+
+    def _make_complete_spacer_summary(self):
+        """
+        Combines spacer sequences from all subfolders into a single FASTA file.
+        Adds the accession number (subfolder name) to the beginning of each header.
+        """
+        fasta_summary_path = join(self.folder_result, "Complete_Spacers.fasta")
+        flag_found_spacers = False
+
+        with open(fasta_summary_path, "w") as fasta_file:
+            for sub_folder in self.sub_folders:
+                summary_path = join(self.folder_result, sub_folder, "Spacers.fasta")
+                if os.path.exists(summary_path):
+                    flag_found_spacers = True
+                    with open(summary_path) as fr:
+                        lines = fr.readlines()
+
+                    for index in range(0, len(lines), 2):  # Headers and sequences are paired
+                        header = lines[index].strip()
+                        sequence = lines[index + 1].strip()
+
+                        # Add accession number (subfolder name) to the beginning of the header
+                        updated_header = f">{sub_folder.strip()}_{header[1:]}"  # Skip the initial '>' in header
+                        fasta_file.write(f"{updated_header}\n")
+                        fasta_file.write(f"{sequence}\n")
+
+            if not flag_found_spacers:
+                fasta_file.write(">No_spacers_found\n")
+                fasta_file.write("N/A\n")
 
 
 class CasSummaryMaker:
