@@ -1,6 +1,8 @@
 import os
 import pickle
 import json
+import csv
+from collections import defaultdict
 from os import listdir
 from os.path import basename
 from os.path import isfile, join
@@ -406,7 +408,7 @@ class SpacerSummaryMaker:
         fasta_path = f"{self.result_path}/Spacers.fasta"
 
         with open(fasta_path, "w") as fasta_file:
-            for category_index, category_name in zip(range(len(self.categories)), ["Bona-fide", "Alternative", "Possible"]):
+            for category_index, category_name in zip(range(len(self.categories)), ["Bona-fide", "Possible"]):
                 for key, crisprs in self.categories[category_index].items():
                     for crispr in crisprs:
                         consensus = crispr[1].consensus
@@ -415,7 +417,7 @@ class SpacerSummaryMaker:
                         spacers = " ".join(crispr[1].list_spacers)
 
                         # Write the FASTA header and sequence
-                        fasta_header = f"> {category_name}_{start}_{end}_{consensus}"
+                        fasta_header = f">{category_name}_-_{start}_-_{end}_-_{consensus}"
                         fasta_file.write(f"{fasta_header}\n")
                         fasta_file.write(f"{spacers}\n")
 
@@ -945,7 +947,7 @@ class CompleteSpacerSummaryMaker:
                         sequence = lines[index + 1].strip()
 
                         # Add accession number (subfolder name) to the beginning of the header
-                        updated_header = f">{sub_folder.strip()}_{header[1:]}"  # Skip the initial '>' in header
+                        updated_header = f">{sub_folder.strip()}_-_{header[1:]}"  # Skip the initial '>' in header
                         fasta_file.write(f"{updated_header}\n")
                         fasta_file.write(f"{sequence}\n")
 
@@ -1145,7 +1147,7 @@ class CompleteFastaOutputMaker:
                         headers = lines[::2]
                         sequences = lines[1::2]
                         for header, sequence in zip(headers, sequences):
-                            new_header = ">" + sub_folder.strip() + "_" + header[1:]
+                            new_header = ">" + sub_folder.strip() + "_-_" + header[1:]
                             fs.write(new_header)
                             fs.write(sequence)
 
@@ -1162,6 +1164,135 @@ class CompleteFastaOutputMaker:
                             fa.write(new_header)
                             fa.write(sequence)
 
+class CompleteSpacerCSVMaker:
+    def __init__(self, folder_result):
+        self.folder_result = folder_result
+
+        self._make_complete_spacer_summary()
+
+    def _is_within_proximity(self, spacer_start, spacer_end, cas_start, cas_end, threshold=10000):
+        distance = min(abs(spacer_start - cas_end), abs(spacer_end - cas_start))
+        return distance <= threshold, distance
+
+    def _parse_fasta(self, fasta_file):
+        fasta_dict = defaultdict(list)  # Each accession can have multiple arrays
+        with open(fasta_file, 'r') as file:
+            current_accession = None
+            current_array = None
+            for line in file:
+                if line.startswith('>'):
+                    # Parse the header line
+                    parts = line.strip().split('_-_')
+                    current_accession = parts[0][1:]  # Remove the '>' from the accession
+                    category = parts[1]
+                    start = int(parts[2])
+                    end = int(parts[3])
+                    consensus_repeat = parts[4]
+                    current_array = {
+                        "category": category,
+                        "start": start,
+                        "end": end,
+                        "consensus_repeat": consensus_repeat,
+                        "spacers": []
+                    }
+                    fasta_dict[current_accession].append(current_array)
+                else:
+                    # Add the sequence line as a spacer
+                    if current_array:
+                        current_array["spacers"].append(line.strip())
+        return fasta_dict
+
+    def _parse_csv(self, csv_file):
+        csv_dict = defaultdict(list)
+        with open(csv_file, 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                accession = row['Name']
+                start = int(row['Start'])
+                end = int(row['End'])
+                cas_type = row['Cassete type']
+                csv_dict[accession].append({
+                    "start": start,
+                    "end": end,
+                    "cas_type": cas_type
+                })
+        return csv_dict
+
+    def _find_closest_cas(self, fasta_dict, csv_dict):
+        results = []
+        for accession, arrays in fasta_dict.items():
+            for array in arrays:
+                spacer_start = array["start"]
+                spacer_end = array["end"]
+                closest_cas = None
+                min_distance = float('inf')
+
+                if accession in csv_dict:
+                    for cas in csv_dict[accession]:
+                        proximity, distance = self._is_within_proximity(spacer_start, spacer_end, cas["start"], cas["end"])
+                        if proximity and distance < min_distance:
+                            min_distance = distance
+                            closest_cas = cas
+
+                results.append({
+                    "accession": accession,
+                    "array": array,
+                    "closest_cas": closest_cas,
+                    "distance": min_distance if closest_cas else None
+                })
+        return results
+
+    def create_output_directory(self, directory_name):
+        if not os.path.exists(directory_name):
+            os.makedirs(directory_name)
+
+    # Step 5: Write results to CSV files
+    def write_to_csv(self, output_directory, combined_results):
+        grouped_data = defaultdict(list)
+
+        # Group results by "cas_type" and "consensus_repeat"
+        for result in combined_results:
+            array = result["array"]
+            closest_cas = result["closest_cas"]
+
+            if closest_cas:  # Only include cases where a CAS is close
+                key = f"cas_type_{closest_cas['cas_type']}_{array['consensus_repeat']}"
+                grouped_data[key].append({
+                    "spacer_sequence": "".join(array["spacers"]),
+                    "accession_number": result["accession"],
+                    "start": array["start"],
+                    "end": array["end"],
+                    "category": array["category"]
+                })
+
+            # Write each group to a separate CSV file
+        for filename, entries in grouped_data.items():
+            file_path = os.path.join(output_directory, f"{filename}.csv")
+            with open(file_path, "w", newline="") as csvfile:
+                writer = csv.writer(csvfile)
+                # Write header
+                writer.writerow(["Index", "Spacer Sequence", "Accession Number", "Start", "End", "Category"])
+                # Write data
+                for index, entry in enumerate(entries, start=1):
+                    writer.writerow([
+                        index,
+                        entry["spacer_sequence"],
+                        entry["accession_number"],
+                        entry["start"],
+                        entry["end"],
+                        entry["category"]
+                    ])
+    def _make_complete_spacer_summary(self):
+        fasta_file_path = f'{self.folder_result}/Complete_spacer_dataset.fasta'
+        csv_file_path = f'{self.folder_result}/Complete_Cassette_summary.csv'
+        output_directory = f'{self.folder_result}/output_spacer_files'
+
+        parsed_fasta = self._parse_fasta(fasta_file=fasta_file_path)
+        parsed_csv = self._parse_csv(csv_file=csv_file_path)
+        combined_results = self._find_closest_cas(parsed_fasta, parsed_csv)
+
+        self.create_output_directory(output_directory)
+        self.write_to_csv(output_directory, combined_results)
 
 class CompleteJsonOutputMaker:
     def __init__(self, folder_json_result, folder_text_tesult):

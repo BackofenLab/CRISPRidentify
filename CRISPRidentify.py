@@ -15,6 +15,7 @@ from components.components_output_maker import CompleteFastaOutputMaker
 from components.components_output_maker import CompleteFolderSummaryMaker
 from components.components_output_maker import CompleteCasSummaryFolderMaker
 from components.components_output_maker import CompleteJsonOutputMaker
+from components.components_output_maker import CompleteSpacerCSVMaker
 from components.components_helpers import multiline_fasta_check, multiline_fasta_handle, multiline_fasta_handle_python
 from components.components_helpers import folder_of_multifasta_handle
 
@@ -252,6 +253,8 @@ def run_over_folder_of_files(folder, result_folder, pickle_folder, chunk_number=
     cfsm = CompleteFolderSummaryMaker(folder_result=result_folder)
     ccfsm = CompleteCasSummaryFolderMaker(folder_result=result_folder)
     cfom = CompleteFastaOutputMaker(folder_result=result_folder)
+    if cas_flag:
+        cs_csv = CompleteSpacerCSVMaker(folder_result=result_folder)
     if json_folder:
         cjsm = CompleteJsonOutputMaker(folder_json_result=json_folder, folder_text_tesult=result_folder)
 

@@ -10,6 +10,7 @@ from components.components_output_maker import CompleteFastaOutputMaker
 from components.components_output_maker import CompleteFolderSummaryMaker
 from components.components_output_maker import CompleteCasSummaryFolderMaker
 from components.components_output_maker import SpacerSummaryMaker
+from components.components_output_maker import CompleteSpacerCSVMaker
 
 
 class OutputMaker:
@@ -51,6 +52,7 @@ class OutputMaker:
         if self.flags["flag_cas"] is True:
             sm_cas = CasSummaryMaker(result_path=self.result_path,
                                      non_array_data=self.non_array_data)
+
 
         #cfsm = CompleteFolderSummaryMaker(folder_result=self.global_result_folder)
         #ccfsm = CompleteCasSummaryFolderMaker(folder_result=self.global_result_folder)
