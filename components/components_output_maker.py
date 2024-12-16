@@ -1256,32 +1256,52 @@ class CompleteSpacerCSVMaker:
             closest_cas = result["closest_cas"]
 
             if closest_cas:  # Only include cases where a CAS is close
-                key = f"cas_type_{closest_cas['cas_type']}_{array['consensus_repeat']}"
-                grouped_data[key].append({
-                    "spacer_sequence": "".join(array["spacers"]),
-                    "accession_number": result["accession"],
-                    "start": array["start"],
-                    "end": array["end"],
-                    "category": array["category"]
-                })
+                key = f"{closest_cas['cas_type']}_{array['consensus_repeat']}"
 
-            # Write each group to a separate CSV file
+                # Split spacers string into individual spacer sequences
+                spacers = array["spacers"][0].split(" ")  # Split spacers by space
+
+                for spacer_index, spacer in enumerate(spacers):
+                    grouped_data[key].append({
+                        "spacer_index": spacer_index + 1,
+                        "spacer_sequence": spacer,  # Each spacer is now split into a separate entry
+                        "accession_number": result["accession"],
+                        "start": array["start"],
+                        "end": array["end"],
+                        "category": array["category"],
+                        "consensus_repeat": array["consensus_repeat"],
+                        "cas_gene": closest_cas["cas_type"]
+                    })
+
+        # Write each group to a separate CSV file
         for filename, entries in grouped_data.items():
             file_path = os.path.join(output_directory, f"{filename}.csv")
             with open(file_path, "w", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 # Write header
-                writer.writerow(["Index", "Spacer Sequence", "Accession Number", "Start", "End", "Category"])
+                writer.writerow([
+                    "Index",
+                    "Spacer Sequence",
+                    "Accession Number",
+                    "Start",
+                    "End",
+                    "Category",
+                    "Consensus Repeat",
+                    "Cas-Gene"
+                ])
                 # Write data
-                for index, entry in enumerate(entries, start=1):
+                for entry in entries:
                     writer.writerow([
-                        index,
+                        entry["spacer_index"],
                         entry["spacer_sequence"],
                         entry["accession_number"],
                         entry["start"],
                         entry["end"],
-                        entry["category"]
+                        entry["category"],
+                        entry["consensus_repeat"],
+                        entry["cas_gene"]
                     ])
+
     def _make_complete_spacer_summary(self):
         fasta_file_path = f'{self.folder_result}/Complete_spacer_dataset.fasta'
         csv_file_path = f'{self.folder_result}/Complete_Cassette_summary.csv'

@@ -5,6 +5,7 @@ channels:
   - nodefaults
   - biobuilds
   - r
+  - axfeh
 dependencies:
   - python==3.7.6
   - python_abi=3.7
@@ -46,3 +47,6 @@ dependencies:
   - blast==2.5.0
   - keras==2.4.3
   - libffi=3.2.1
+  - spacerplacer
+  - pip:
+    - python-Levenshtein
