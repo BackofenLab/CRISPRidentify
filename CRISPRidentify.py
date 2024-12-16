@@ -272,6 +272,14 @@ def run_over_one_file(file, result_folder, pickle_folder, json_folder):
                   flag_dev_mode=FLAG_DEVELOPER_MODE,
                   absolute_directory_path=script_absolute_path)
 
+    cfsm = CompleteFolderSummaryMaker(folder_result=result_folder)
+    ccfsm = CompleteCasSummaryFolderMaker(folder_result=result_folder)
+    cfom = CompleteFastaOutputMaker(folder_result=result_folder)
+    if cas_flag:
+        cs_csv = CompleteSpacerCSVMaker(folder_result=result_folder)
+    if json_folder:
+        cjsm = CompleteJsonOutputMaker(folder_json_result=json_folder, folder_text_tesult=result_folder)
+
 
 
 def main():
