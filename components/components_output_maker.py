@@ -1273,10 +1273,11 @@ class CompleteSpacerCSVMaker:
                         "cas_gene": closest_cas["cas_type"]
                     })
 
-        # Write each group to a separate CSV file
+        # Write each group to separate CSV and FASTA files
         for filename, entries in grouped_data.items():
-            file_path = os.path.join(output_directory, f"{filename}.csv")
-            with open(file_path, "w", newline="") as csvfile:
+            # Write CSV file
+            csv_file_path = os.path.join(output_directory, f"{filename}.csv")
+            with open(csv_file_path, "w", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 # Write header
                 writer.writerow([
@@ -1301,6 +1302,16 @@ class CompleteSpacerCSVMaker:
                         entry["consensus_repeat"],
                         entry["cas_gene"]
                     ])
+
+            # Write FASTA file
+            fasta_file_path = os.path.join(output_directory, f"{filename}.fasta")
+            with open(fasta_file_path, "w") as fastafile:
+                for entry in entries:
+                    # Create FASTA header
+                    header = f">{entry['accession_number']}_-_{entry['start']}_-_{entry['end']}_-_{entry['cas_gene']}_-_{entry['spacer_index']}"
+                    # Write header and sequence
+                    fastafile.write(f"{header}\n")
+                    fastafile.write(f"{entry['spacer_sequence']}\n")
 
     def _make_complete_spacer_summary(self):
         fasta_file_path = f'{self.folder_result}/Complete_spacer_dataset.fasta'
