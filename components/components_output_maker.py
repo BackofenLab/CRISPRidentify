@@ -333,7 +333,7 @@ class SummaryMakerCSV:
                                   "Average Spacer Length", "Number of spacers", "Strand", "Category", "Score"]))
                 f.write("\n")
                 global_index = 1
-                for category_index, category in zip(range(3), ["Bona-fide", "Possible"]):
+                for category_index, category in zip([0, 2], ["Bona-fide", "Possible"]):
                     arrays = [el[1] for key in self.categories[category_index].keys()
                               for el in self.categories[category_index][key]]
                     scores = [el[0] for key in self.categories[category_index].keys()
