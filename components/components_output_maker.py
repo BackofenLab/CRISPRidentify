@@ -333,7 +333,7 @@ class SummaryMakerCSV:
                                   "Average Spacer Length", "Number of spacers", "Strand", "Category", "Score"]))
                 f.write("\n")
                 global_index = 1
-                for category_index, category in zip(range(3), ["Bona-fide", "Alternative", "Possible"]):
+                for category_index, category in zip(range(3), ["Bona-fide", "Possible"]):
                     arrays = [el[1] for key in self.categories[category_index].keys()
                               for el in self.categories[category_index][key]]
                     scores = [el[0] for key in self.categories[category_index].keys()
@@ -408,7 +408,7 @@ class SpacerSummaryMaker:
         fasta_path = f"{self.result_path}/Spacers.fasta"
 
         with open(fasta_path, "w") as fasta_file:
-            for category_index, category_name in zip(range(len(self.categories)), ["Bona-fide", "Possible"]):
+            for category_index, category_name in zip([0, 2], ["Bona-fide", "Possible"]):
                 for key, crisprs in self.categories[category_index].items():
                     for crispr in crisprs:
                         consensus = crispr[1].consensus
@@ -1288,7 +1288,7 @@ class CompleteSpacerCSVMaker:
                     "End",
                     "Category",
                     "Consensus Repeat",
-                    "Cas-Gene"
+                    "Cas Type"
                 ])
                 # Write data
                 for entry in entries:
