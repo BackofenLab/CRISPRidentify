@@ -1,4 +1,10 @@
 import numpy as np
+
+# disable tensorflow multi-threading
+import tensorflow as tf
+tf.config.threading.set_inter_op_parallelism_threads(1)
+tf.config.threading.set_intra_op_parallelism_threads(1)
+
 #import matplotlib.pyplot as plt
 from keras.models import load_model as lm
 
