@@ -6,6 +6,11 @@ Created on Thu Jul 11 10:42:42 2019
 @author: ekrem
 """
 
+# disable tensorflow multi-threading
+import tensorflow as tf
+tf.config.threading.set_inter_op_parallelism_threads(1)
+tf.config.threading.set_intra_op_parallelism_threads(1)
+
 from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
 from keras.layers import GlobalMaxPooling2D
