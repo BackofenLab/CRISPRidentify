@@ -285,14 +285,10 @@ def run_over_one_file(file, result_folder, pickle_folder, json_folder):
 def main():
     start_time = time()
     if complete_path_file:
-        if multiline_fasta_check(complete_path_file):
-            print("Multifasta")
-            folder_multifasta = multiline_fasta_handle_python(complete_path_file)
-            print(folder_multifasta)
-            run_over_folder_of_files(folder_multifasta, folder_result, pickle_folder, json_folder)
-            shutil.rmtree(folder_multifasta)
-        else:
-            run_over_one_file(complete_path_file, folder_result, pickle_folder, json_folder)
+        folder_multifasta = multiline_fasta_handle_python(complete_path_file, flag_ncbi_formatting=True)
+        print(folder_multifasta)
+        run_over_folder_of_files(folder_multifasta, folder_result, pickle_folder, json_folder)
+        shutil.rmtree(folder_multifasta)
     elif complete_path_folder:
         run_over_folder_of_files(complete_path_folder, folder_result, pickle_folder, json_folder)
     elif complete_folder_multifasta:

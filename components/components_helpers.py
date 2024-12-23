@@ -1,6 +1,21 @@
 import os
+import re
 from os import listdir
 from os.path import isfile, join
+
+
+def process_string_from_header(input_string):
+    # Define the function to replace based on the condition
+    def replace_match(match):
+        # If it's an integer, remove the dot and integer
+        if match.group(2).isdigit():
+            return match.group(1)
+        # If it's not an integer, replace the dot with a hyphen
+        return match.group(1) + "-" + match.group(2)
+
+    # Use regex to find patterns with a dot followed by any characters
+    result = re.sub(r'(\w+)\.(\w+)', replace_match, input_string)
+    return result
 
 def multiline_fasta_check(file):
     with open(file, "r") as f:
@@ -28,7 +43,7 @@ def multiline_fasta_handle(file):
     return base_name
 
 
-def multiline_fasta_handle_python(file):
+def multiline_fasta_handle_python(file, flag_ncbi_formatting=False):
     base_name = str(os.path.basename(file).split(".")[0])
     try:
         os.mkdir(base_name)
@@ -55,12 +70,23 @@ def multiline_fasta_handle_python(file):
     if dna_sequence:
         dna_sequences.append(dna_sequence)
 
-    for header, dna_sequence in zip(headers, dna_sequences):
-        file_name = header.strip().split(">")[1].replace(",", "_")\
-                        .replace(".", "_").replace(" ", "_").replace("|", "_") + ".fa"
-        with open(os.path.join(base_name, file_name), "w") as f:
-            f.write(header)
-            f.write(dna_sequence)
+    if flag_ncbi_formatting:
+        for header, dna_sequence in zip(headers, dna_sequences):
+            new_header = header.split(" ")[0]
+            new_header = process_string_from_header(new_header)
+            file_name = new_header.split(">")[1].replace(",", "-") \
+                                  .replace(".", "-").replace(" ", "_").replace("|", "-") + ".fa"
+            with open(os.path.join(base_name, file_name), "w") as f:
+                f.writelines(new_header)
+                f.write("\n")
+                f.writelines(dna_sequence)
+    else:
+        for header, dna_sequence in zip(headers, dna_sequences):
+            file_name = header.strip().split(">")[1].replace(",", "_")\
+                            .replace(".", "_").replace(" ", "_").replace("|", "_") + ".fa"
+            with open(os.path.join(base_name, file_name), "w") as f:
+                f.write(header)
+                f.write(dna_sequence)
 
     return base_name
 
