@@ -1308,7 +1308,8 @@ class CompleteSpacerCSVMaker:
             with open(fasta_file_path, "w") as fastafile:
                 for entry in entries:
                     # Create FASTA header
-                    header = f">{entry['accession_number']}_-_{entry['start']}_-_{entry['end']}_-_{entry['category']}_-_{entry['cas_gene']}_-_{entry['spacer_index']}"
+                    cas_type, consensus = filename.split("_")
+                    header = f">{entry['accession_number']}_-_{entry['start']}_-_{entry['end']}_-_{entry['category']}_-_{entry['cas_gene']}_-_{entry['spacer_index']}_-_{cas_type}_-_{consensus}"
                     # Write header and sequence
                     fastafile.write(f"{header}\n")
                     fastafile.write(f"{entry['spacer_sequence']}\n")
