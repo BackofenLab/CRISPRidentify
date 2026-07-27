@@ -1,0 +1,4 @@
+[submodule "tools/CRISPRcasIdentifier/CRISPRcasIdentifier"]
+	path = tools/CRISPRcasIdentifier/CRISPRcasIdentifier
+	url = https://github.com/BackofenLab/CRISPRcasIdentifier.git
+	branch = v1.1.0

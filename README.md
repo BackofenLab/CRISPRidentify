@@ -13,83 +13,53 @@ approach not only provides the user with the basic statistics on the identified 
 but also produces a certainty score as an intuitive measure of the likelihood that a given
 genomic region is a CRISPR array.
 
-## Getting Started
+## Setup
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
+1. **Clone the repository** with submodules:
 
-### Prerequisites
+   ```
+   git clone --recurse-submodules https://github.com/BackofenLab/CRISPRidentify.git && cd CRISPRidentify
+   ```
 
-First you need to install Miniconda
-Then create an environment and install the required libraries in it
+   Or alternatively, if already cloned, run:
 
+   ```
+   cd CRISPRidentify
+   git submodule update --init --recursive
+   ```
 
-### Creating a Miniconda environment 
+   This ensures CRISPRcasIdentifier v1.1.0 is included at `tools/CRISPRcasIdentifier/` (so that the final path is `tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py`). If you want to setup the tool separately, you can also download it from [here](https://github.com/BackofenLab/CRISPRcasIdentifier) and place it in the correct location yourself.
 
-First we install Miniconda for python 3.
-Miniconda can be downloaded from here:
+2. **Install conda/mamba** (if not already):
+   - Either Conda (e.g. [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) or Mamba (e.g. [micromamba](https://mamba.readthedocs.io/en/latest/installation.html)) is fine. We recommend micromamba for faster installation.
 
-https://docs.conda.io/en/latest/miniconda.html 
+3. **Create and activate the environment**:
 
-Then Miniconda should be installed. On a linux machine the command is similar to this one: 
+   With [conda](https://docs.conda.io/en/latest/miniconda.html):
+   ```
+   conda env create -f environment.yml
+   conda activate crispr_identify_env
+   ```
 
-```
-bash Miniconda3-latest-Linux-x86_64.sh
-```
+   Or with [micromamba](https://mamba.readthedocs.io/en/latest/installation.html):
 
-Then we create an environment. The necessary setup is provided in the "environment.yml" file.
+   ```
+   mamba env create -f environment.yml
+   mamba activate crispr_identify_env
+   ```
+   <sub><sub>We want to acknowledge Richard Stöckl @richardstoeckl for his contribution to the environment.yml file.</sub></sub>
 
-In order to install the corresponding environment one can execute the following command.
+4. **Download the models**:
 
-```
-conda env create -f environment.yml
-```
+   CRISPRcasIdentifier requires pretrained models. Due to GitHub's file size constraints, the authors made their HMM and ML models available in Google Drive. You can download and prepare them via the commands below (the necessary tools are installed in the crispr_identify_env for you), or by downloading them manually from [here](https://drive.google.com/file/d/1YbTxkn9KuJP2D7U1-6kL1Yimu_4RqSl1/view?usp=sharing) and [here](https://drive.google.com/file/d/1Nc5o6QVB6QxMxpQjmLQcbwQwkRLk-thM/view?usp=sharing). Save the model files inside CRISPRcasIdentifier's directory.
 
-We recommend to install mamba package manager which is a faster alternative to conda.
-
-```
-conda install -c conda-forge mamba
-```
-
-Then we can create the environment using mamba.
-```
-mamba env create -f environment.yml
-```
-
-<sub><sub>We want to acknowledge Richard Stöckl @richardstoeckl for his contribution to the environment.yml file.</sub></sub>
-
-
-### Additional preparations
-
-CRISPRidentify utilizes CRISPRcasIdentifier for the detection of the cas genes.
-If you are interested in cas gene result please install CRISPRcasIdentifier.
-
-Please make sure that after you downloaded CRISPRcasIdentifier its relative path is:
-
-```
-tools/CRISPRcasIdentifier/CRISPRcasIdentifier/CRISPRcasIdentifier.py
-```
-
-You can find the CRISPRcasIdentifier tool and its description [here](https://github.com/BackofenLab/CRISPRcasIdentifier)
-
-You need to make two steps:
-
-Firstly, you need to download the CRISPRcasIdentifier tool:
-```
-wget https://github.com/BackofenLab/CRISPRcasIdentifier/archive/v1.1.0.tar.gz
-tar -xzf v1.1.0.tar.gz
-```
-Secondly, you need to download the models:
-
-Due to GitHub's file size constraints, authors made their HMM and ML models available in Google Drive. You can download them [here](https://drive.google.com/file/d/1YbTxkn9KuJP2D7U1-6kL1Yimu_4RqSl1/view?usp=sharing) and [here](https://drive.google.com/file/d/1Nc5o6QVB6QxMxpQjmLQcbwQwkRLk-thM/view?usp=sharing). Save both tar.gz files inside CRISPRcasIdentifier's directory.
-
-
-### Activation of the environment
-
-Before running CRISPRidentify one need to activate the corresponding environment.
-
-```
-conda activate crispr_identify_env
-```
+   ```
+   # Download
+   gdown --fuzzy https://drive.google.com/file/d/1YbTxkn9KuJP2D7U1-6kL1Yimu_4RqSl1/view?usp=sharing
+   gdown --fuzzy https://drive.google.com/file/d/1Nc5o6QVB6QxMxpQjmLQcbwQwkRLk-thM/view?usp=sharing
+   # Move the downloaded files to the correct location
+   mv *.tar.gz tools/CRISPRcasIdentifier/CRISPRcasIdentifier/
+   ```
 
 ## Running CRISPRidentify
 
