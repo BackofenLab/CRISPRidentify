@@ -5,7 +5,7 @@ from components.components_output_maker import PickleOutputMaker
 from components.components_output_maker import CasSummaryMaker
 from components.components_output_maker import FastaOutputArrayMaker
 from components.components_output_maker import JsonOutputMaker
-
+from components.components_output_maker import GFFOutputMaker
 from components.components_output_maker import CompleteFastaOutputMaker
 from components.components_output_maker import CompleteFolderSummaryMaker
 from components.components_output_maker import CompleteCasSummaryFolderMaker
@@ -49,6 +49,8 @@ class OutputMaker:
                                  categories=self.categories,
                                  non_array_data=self.non_array_data)
 
+        gffom = GFFOutputMaker(result_path=self.result_path, categories=self.categories, non_array_data=self.non_array_data,
+                                list_feature_names=self.list_features)
         if self.flags["flag_cas"] is True:
             sm_cas = CasSummaryMaker(result_path=self.result_path,
                                      non_array_data=self.non_array_data)

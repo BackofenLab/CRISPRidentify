@@ -300,7 +300,7 @@ class BulkFeatureExtractorORFHMMR:
     def _run_hmm_search(self):
         #cmd = 'tools/hmm_search/hmmsearch --tblout result_hmm.out tools/hmm_search/models_tandem.hmm protein_results.fa'
 
-        no_binary_cmd = "hmmsearch --tblout result_hmm.out tools/hmm_search/models_tandem.hmm protein_results.fa"
+        no_binary_cmd = "hmmsearch --tblout result_hmm.out ../tools/hmm_search/models_tandem.hmm protein_results.fa"
 
         process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
@@ -403,7 +403,7 @@ class BulkFeatureExtractorBlast:
         #cmd += ' -word_size 6'
         #cmd += ' -outfmt 6 -out output_fasta_bulk_extraction1'
 
-        no_binary_cmd = f"blastn -query file_with_all_consensus.fa -db tools/blasting/{db_file} -word_size 6  -outfmt 6 -out output_fasta_bulk_extraction1"
+        no_binary_cmd = f"blastn -query file_with_all_consensus.fa -db ../tools/blasting/{db_file} -word_size 6  -outfmt 6 -out output_fasta_bulk_extraction1"
 
         process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
@@ -416,7 +416,7 @@ class BulkFeatureExtractorBlast:
         #cmd += ' -word_size 6'
         #cmd += ' -outfmt 6 -out output_fasta_bulk_extraction2'
 
-        no_binary_cmd = f"blastn -query file_with_all_consensus.fa -db tools/blasting/{db_file} -word_size 6  -outfmt 6 -out output_fasta_bulk_extraction2"
+        no_binary_cmd = f"blastn -query file_with_all_consensus.fa -db ../tools/blasting/{db_file} -word_size 6  -outfmt 6 -out output_fasta_bulk_extraction2"
 
         process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         process.communicate()
@@ -869,7 +869,7 @@ class CrisprHmmer(RepeatSpacersFeatures):
         self._create_crispr_seq()
         self._create_file()
         self._call_prodigal()
-        self._run_hmm_search('tools/hmm_search/models_tandem.hmm')
+        self._run_hmm_search('../tools/hmm_search/models_tandem.hmm')
         self._get_best_score_from_hmm()
         self._clean_up()
 
@@ -897,7 +897,7 @@ class CrisprHmmer(RepeatSpacersFeatures):
             #                                                            hmm_model,
             #                                                            'protein_{}.fa'.format(self.index))
 
-            no_binary_cmd = f"tools/hmm_search/hmmsearch --tblout result_hmm_{self.index}.out hmm_model protein_{self.index}.fa"
+            no_binary_cmd = f"hmmsearch --tblout result_hmm_{self.index}.out {hmm_model} protein_{self.index}.fa"
 
             process = subprocess.Popen(no_binary_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             process.communicate()
